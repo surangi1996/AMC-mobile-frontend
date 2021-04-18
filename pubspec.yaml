@@ -27,15 +27,32 @@ dependencies:
   flutter_swiper: ^1.1.6
   flutter:
     sdk: flutter
+  http: ^0.12.0
+  json_annotation: ^3.1.0
+
+
 
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.0
+  url_launcher: ^5.0.3
+  simple_url_preview: ^0.1.10
+  get_it: ^1.0.3+2
+  image_picker: ^0.6.7+4
+  flutter_secure_storage:
+  logger: 
+  flutter_spinkit: "^4.1.2"
+ 
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
+  build_runner: ^1.0.0
+  json_serializable: ^3.5.0
+
+
+
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -56,9 +73,9 @@ flutter:
     - assets/WhatsApp Image 2021-01-02 at 23.28.17 (1).jpeg
     - assets/WhatsApp Image 2021-01-02 at 23.28.17.jpeg
     - assets/support.jpg
-    - assets/chat.svg
+    - assets/facebook.svg
     - assets/telephone.svg
-    - assets/twitter.svg
+    - assets/email.svg
     - assets/call-center.svg
     - assets/world-wide-web.svg
     - assets/edit0.jpg
@@ -95,6 +112,9 @@ flutter:
     - family: Rancho
       fonts:
         - asset: fonts/Rancho-Regular.ttf
+    - family: Advent_Pro
+      fonts:
+        - asset: fonts/AdventPro-Regular.ttf
         
   #   - family: Trajan Pro
   #     fonts:
