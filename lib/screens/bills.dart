@@ -1,7 +1,7 @@
-import 'package:amc_new/model/invoice.dart';
+import 'package:amc_new/model/bill.dart';
 import 'package:amc_new/service/Invoice_service.dart';
 import 'package:flutter/material.dart';
-import 'package:amc_new/widgets/loading_screen.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class Bills extends StatefulWidget {
   @override
@@ -9,19 +9,32 @@ class Bills extends StatefulWidget {
 }
 
 class _BillsState extends State<Bills> {
-  InvoiceService invoiceService = new InvoiceService();
+  // List<String> _amcNo = <String>[
+  //   "AMC No 1",
+  //   "AMC No 2",
+  //   "AMC No 3",
+  //   "AMC No 4",
+  //   "AMC No 5"
+  // ];
+
+  bool circular = false;
+  bool isLoading = true;
+  InvoiceService billService = new InvoiceService();
+
+  final storage = new FlutterSecureStorage();
 
   void initState() {
     super.initState();
-    setState(() {});
+    setState(() {
+      circular = true;
+    });
     fetchInvoice();
   }
 
-  Invoice invoice;
-  bool isLoading = true;
+  ClientInvoice clientInvoice;
   fetchInvoice() async {
-    invoice = await invoiceService.getInvoice("184165N");
-    if (invoice != null) {
+    clientInvoice = await billService.getclientInvoice("1");
+    if (clientInvoice != null) {
       setState(() {
         isLoading = false;
       });
@@ -31,9 +44,9 @@ class _BillsState extends State<Bills> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    if (isLoading) {
-      return LoadingScreen();
-    }
+    // if (isLoading) {
+    //   return LoadingScreen();
+    // }
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.black,
@@ -66,7 +79,9 @@ class _BillsState extends State<Bills> {
         ],
       ),
       body: Container(
+        margin: EdgeInsets.all(10.0),
         decoration: BoxDecoration(
+          border: Border.all(width: 2.0, color: Colors.grey),
           gradient: LinearGradient(
             begin: const Alignment(-1.0, 0.0),
             end: const Alignment(0.6, 2.0),
@@ -122,7 +137,7 @@ class _BillsState extends State<Bills> {
                               color: Colors.red[800]),
                         ),
                         SizedBox(
-                          height: size.height * 0.02,
+                          height: size.height * 0.005,
                         ),
                         Text(
                           "Category",
@@ -132,7 +147,7 @@ class _BillsState extends State<Bills> {
                               color: Colors.red[800]),
                         ),
                         SizedBox(
-                          height: size.height * 0.02,
+                          height: size.height * 0.005,
                         ),
                         Text(
                           "Currancy",
@@ -142,7 +157,7 @@ class _BillsState extends State<Bills> {
                               color: Colors.red[800]),
                         ),
                         SizedBox(
-                          height: size.height * 0.02,
+                          height: size.height * 0.005,
                         ),
                         Text(
                           "Exchange Rate",
@@ -152,7 +167,7 @@ class _BillsState extends State<Bills> {
                               color: Colors.red[800]),
                         ),
                         SizedBox(
-                          height: size.height * 0.02,
+                          height: size.height * 0.005,
                         ),
                         Text(
                           "Total Tax",
@@ -162,7 +177,7 @@ class _BillsState extends State<Bills> {
                               color: Colors.red[800]),
                         ),
                         SizedBox(
-                          height: size.height * 0.02,
+                          height: size.height * 0.005,
                         ),
                         Text(
                           "Total Amount",
@@ -172,7 +187,7 @@ class _BillsState extends State<Bills> {
                               color: Colors.red[800]),
                         ),
                         SizedBox(
-                          height: size.height * 0.02,
+                          height: size.height * 0.005,
                         ),
                         Text(
                           "Total Due Ammount",
@@ -182,7 +197,7 @@ class _BillsState extends State<Bills> {
                               color: Colors.red[800]),
                         ),
                         SizedBox(
-                          height: size.height * 0.02,
+                          height: size.height * 0.005,
                         ),
                         Text(
                           "Total Amount Payble",
@@ -192,88 +207,103 @@ class _BillsState extends State<Bills> {
                               fontFamily: 'Lateef'),
                         ),
                         SizedBox(
-                          height: size.height * 0.02,
-                        )
+                          height: size.height * 0.005,
+                        ),
                       ],
                     ),
                   ),
                   Container(
-                    width: size.width * 0.3,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: <Widget>[
                         Text(
-                          invoice == null ? "xxxx" : invoice.amcNo,
+                          clientInvoice == null
+                              ? "(Empty)"
+                              : clientInvoice.amcNo,
                           style: TextStyle(
                               fontSize: 25.0,
                               fontFamily: 'Lateef',
                               color: Colors.blue),
                         ),
                         SizedBox(
-                          height: size.height * 0.02,
+                          height: size.height * 0.005,
                         ),
                         Text(
-                          invoice == null ? "xxxx" : invoice.categoryName,
+                          clientInvoice == null
+                              ? "(Empty)"
+                              : clientInvoice.categoryName,
                           style: TextStyle(
                               fontSize: 25.0,
                               fontFamily: 'Lateef',
                               color: Colors.blue),
                         ),
                         SizedBox(
-                          height: size.height * 0.02,
+                          height: size.height * 0.005,
                         ),
                         Text(
-                          invoice == null ? "xxxx" : invoice.currencyName,
+                          clientInvoice == null
+                              ? "(Empty)"
+                              : clientInvoice.currencyName,
                           style: TextStyle(
                               fontSize: 25.0,
                               fontFamily: 'Lateef',
                               color: Colors.blue),
                         ),
                         SizedBox(
-                          height: size.height * 0.02,
+                          height: size.height * 0.005,
                         ),
                         Text(
-                          invoice == null ? "xxxx" : invoice.exchangeRate,
+                          clientInvoice == null
+                              ? "(Empty)"
+                              : clientInvoice.exchangeRate.toString(),
                           style: TextStyle(
                               fontSize: 25.0,
                               fontFamily: 'Lateef',
                               color: Colors.blue),
                         ),
                         SizedBox(
-                          height: size.height * 0.02,
+                          height: size.height * 0.005,
                         ),
                         Text(
-                          invoice == null ? "xxxx" : invoice.totalTax,
+                          clientInvoice == null
+                              ? "(Empty)"
+                              : clientInvoice.totalTax.toString(),
                           style: TextStyle(
                               fontSize: 25.0,
                               fontFamily: 'Lateef',
                               color: Colors.blue),
                         ),
                         SizedBox(
-                          height: size.height * 0.02,
+                          height: size.height * 0.005,
                         ),
                         Text(
-                          invoice == null ? "xxxx" : invoice.totalAmt,
+                          clientInvoice == null
+                              ? "(Empty)"
+                              : clientInvoice.totalAmount.toString(),
                           style: TextStyle(
                               fontSize: 25.0,
                               fontFamily: 'Lateef',
                               color: Colors.blue),
                         ),
                         SizedBox(
-                          height: size.height * 0.02,
+                          height: size.height * 0.005,
                         ),
                         Text(
-                          invoice == null ? "xxxx" : invoice.invoiceAmount,
+                          clientInvoice == null
+                              ? "(Empty)"
+                              : clientInvoice.invoiceAmount.toString(),
                           style: TextStyle(
                               fontSize: 25.0,
                               fontFamily: 'Lateef',
                               color: Colors.blue),
                         ),
                         SizedBox(
-                          height: size.height * 0.02,
+                          height: size.height * 0.005,
                         ),
                         Text(
-                          invoice == null ? "xxxx" : invoice.totalamountPayble,
+                          clientInvoice == null
+                              ? "(Empty)"
+                              : clientInvoice.totalAmountPayble.toString(),
                           style: TextStyle(
                               fontSize: 25.0,
                               fontWeight: FontWeight.bold,
@@ -281,7 +311,7 @@ class _BillsState extends State<Bills> {
                               color: Colors.black),
                         ),
                         SizedBox(
-                          height: size.height * 0.02,
+                          height: size.height * 0.005,
                         )
                       ],
                     ),

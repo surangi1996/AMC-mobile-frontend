@@ -1,6 +1,7 @@
 import 'package:amc_new/model/user.dart';
 import 'package:amc_new/service/profile_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 class Profile extends StatefulWidget {
   final String userId;
@@ -12,9 +13,10 @@ class Profile extends StatefulWidget {
 class _ProfileState extends State<Profile> {
   ProfileService profileService = ProfileService();
 
+  final storage = new FlutterSecureStorage();
+
   void initState() {
     super.initState();
-
     setState(() {
       circular = true;
     });
@@ -37,6 +39,10 @@ class _ProfileState extends State<Profile> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
+    var userId;
+    setState(() {
+      userId = storage.read(key: "userId");
+    });
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.black,
@@ -79,23 +85,18 @@ class _ProfileState extends State<Profile> {
             ),
           ),
           Container(
-            alignment: Alignment.center,
-            margin: EdgeInsets.fromLTRB(
-                size.width * 0.35, size.height * 0.15, 0, 0),
-            width: 150.0,
-            height: 170.0,
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: Theme.of(context).scaffoldBackgroundColor,
-                width: 5.0,
-              ),
-              shape: BoxShape.circle,
-              color: Colors.white,
-              image: DecorationImage(
-                image: AssetImage(
-                  "assets/profile.png",
+            margin: EdgeInsets.only(top: 20.0),
+            height: size.height * 0.35,
+            alignment: Alignment.topCenter,
+            child: AspectRatio(
+              aspectRatio: 1 / 1,
+              child: ClipOval(
+                child: FadeInImage.assetNetwork(
+                  fit: BoxFit.cover,
+                  image:
+                      'http://192.168.8.144:8080/api/images/getImage/$userId.JPG',
+                  placeholder: "assets/profile.png",
                 ),
-                fit: BoxFit.cover,
               ),
             ),
           ),

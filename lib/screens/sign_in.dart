@@ -7,6 +7,8 @@ class Signin extends StatefulWidget {
   _SigninState createState() => _SigninState();
 }
 
+final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
 class _SigninState extends State<Signin> {
   LoginService loginService = new LoginService();
 
@@ -20,7 +22,7 @@ class _SigninState extends State<Signin> {
   String userId = " ";
   String password = " ";
   bool isHiddenPassword = true;
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
   final TextEditingController _emailFilter = new TextEditingController();
   final TextEditingController _passwordFilter = new TextEditingController();
   Widget userid() {
@@ -32,6 +34,8 @@ class _SigninState extends State<Signin> {
         ),
         Container(
           child: TextFormField(
+            autofocus: true,
+            autocorrect: false,
             controller: _emailFilter,
             validator: (value) {
               if (value.isEmpty) return "Requeired*";
@@ -65,44 +69,51 @@ class _SigninState extends State<Signin> {
   }
 
   Widget passwordField() {
-    return Column(
-      children: <Widget>[
-        SizedBox(height: 10.0),
-        Container(
-          child: TextFormField(
-            controller: _passwordFilter,
-            validator: (String value) {
-              if (value.isEmpty) {
-                return 'Requeired*';
-              }
-              return null;
-            },
-            obscureText: isHiddenPassword,
-            decoration: InputDecoration(
-              labelText: "PASSWORD",
-              labelStyle: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-                fontSize: 20.0,
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).requestFocus(FocusNode());
+      },
+      child: Column(
+        children: <Widget>[
+          SizedBox(height: 10.0),
+          Container(
+            child: TextFormField(
+              autofocus: true,
+              autocorrect: false,
+              controller: _passwordFilter,
+              validator: (String value) {
+                if (value.isEmpty) {
+                  return 'Requeired*';
+                }
+                return null;
+              },
+              obscureText: isHiddenPassword,
+              decoration: InputDecoration(
+                labelText: "PASSWORD",
+                labelStyle: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black,
+                  fontSize: 20.0,
+                ),
+                floatingLabelBehavior: FloatingLabelBehavior.always,
+                hintText: "Enter Your Password",
+                hintStyle: TextStyle(
+                  fontSize: 13.0,
+                  fontWeight: FontWeight.normal,
+                  color: Colors.black45,
+                ),
+                suffixIcon: InkWell(
+                    onTap: _togglePasswordView, child: Icon(Icons.visibility)),
               ),
-              floatingLabelBehavior: FloatingLabelBehavior.always,
-              hintText: "Enter Your Password",
-              hintStyle: TextStyle(
-                fontSize: 13.0,
-                fontWeight: FontWeight.normal,
-                color: Colors.black45,
-              ),
-              suffixIcon: InkWell(
-                  onTap: _togglePasswordView, child: Icon(Icons.visibility)),
+              onChanged: (value) {
+                setState(() {
+                  this.password = value;
+                });
+              },
             ),
-            onChanged: (value) {
-              setState(() {
-                this.password = value;
-              });
-            },
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -193,76 +204,82 @@ class _SigninState extends State<Signin> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        title: Text(
-          "Epic Lanka",
-          style: TextStyle(
-              fontSize: 25.0,
-              color: Colors.blueAccent[100],
-              fontFamily: 'PlayfairDisplay'),
+    return GestureDetector(
+      onTap: () {
+        FocusScope.of(context).requestFocus(FocusNode());
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Colors.black,
+          title: Text(
+            "Epic Lanka",
+            style: TextStyle(
+                fontSize: 25.0,
+                color: Colors.blueAccent[100],
+                fontFamily: 'PlayfairDisplay'),
+          ),
+          leading: Image.asset("assets/epic-lanka-logo.png"),
         ),
-        leading: Image.asset("assets/epic-lanka-logo.png"),
-      ),
-      body: Form(
-        key: _formKey,
-        child: Stack(
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                image: DecorationImage(
-                    image: AssetImage(
-                        "assets/WhatsApp Image 2021-01-02 at 23.28.16.jpeg"),
-                    fit: BoxFit.cover),
-              ),
-            ),
-            Container(
-              margin: EdgeInsets.only(
-                  top: size.height * 0.15,
-                  left: size.width * 0.005,
-                  right: size.width * 0.005),
-              padding: const EdgeInsets.all(25.0),
-              alignment: Alignment.center,
-              child: Center(
-                child: ListView(
-                  children: <Widget>[
-                    SizedBox(
-                      height: size.height * 0.02,
-                    ),
-                    Container(
-                      margin: EdgeInsets.fromLTRB(0, 0, 0, size.height * 0.025),
-                      alignment: Alignment.center,
-                      child: Text(
-                        "SIGN IN",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                          fontSize: 35.0,
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      height: size.height * 0.03,
-                    ),
-                    userid(),
-                    SizedBox(
-                      height: size.height * 0.03,
-                    ),
-                    passwordField(),
-                    SizedBox(
-                      height: size.height * 0.03,
-                    ),
-                    forgotPasswordBtn(),
-                    SizedBox(
-                      height: size.height * 0.03,
-                    ),
-                    loginBtn(),
-                  ],
+        body: Form(
+          key: _formKey,
+          child: Stack(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                      image: AssetImage(
+                          "assets/WhatsApp Image 2021-01-02 at 23.28.16.jpeg"),
+                      fit: BoxFit.cover),
                 ),
               ),
-            ),
-          ],
+              Container(
+                margin: EdgeInsets.only(
+                    top: size.height * 0.15,
+                    left: size.width * 0.005,
+                    right: size.width * 0.005),
+                padding: const EdgeInsets.all(25.0),
+                alignment: Alignment.center,
+                child: Center(
+                  child: ListView(
+                    children: <Widget>[
+                      SizedBox(
+                        height: size.height * 0.02,
+                      ),
+                      Container(
+                        margin:
+                            EdgeInsets.fromLTRB(0, 0, 0, size.height * 0.025),
+                        alignment: Alignment.center,
+                        child: Text(
+                          "SIGN IN",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                            fontSize: 35.0,
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: size.height * 0.03,
+                      ),
+                      userid(),
+                      SizedBox(
+                        height: size.height * 0.03,
+                      ),
+                      passwordField(),
+                      SizedBox(
+                        height: size.height * 0.03,
+                      ),
+                      forgotPasswordBtn(),
+                      SizedBox(
+                        height: size.height * 0.03,
+                      ),
+                      loginBtn(),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

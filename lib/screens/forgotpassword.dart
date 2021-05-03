@@ -1,5 +1,7 @@
+import 'package:amc_new/model/user.dart';
 import 'package:amc_new/service/verify_email_service.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 
 class ForgotPassword extends StatefulWidget {
   @override
@@ -10,6 +12,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   TextEditingController _verifyEmail = TextEditingController();
   VerifyEmailService verifyEmailService = new VerifyEmailService();
+  User user;
   @override
   Widget build(BuildContext context) {
     return Form(
@@ -27,16 +30,10 @@ class _ForgotPasswordState extends State<ForgotPassword> {
           leading: IconButton(
             icon: Icon(Icons.arrow_back),
             onPressed: () {
-              Navigator.of(context).pushReplacementNamed('/dashboard');
+              Navigator.of(context).pushReplacementNamed('/signin');
             },
           ),
           actions: <Widget>[
-            IconButton(
-                icon: Icon(Icons.home),
-                color: Colors.white,
-                onPressed: () {
-                  Navigator.of(context).pushReplacementNamed('/signin');
-                }),
             IconButton(
                 icon: Icon(Icons.notifications),
                 color: Colors.white,
@@ -80,7 +77,9 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                   ),
                   color: Colors.blue[300],
                   onPressed: () async {
-                    if (_formKey.currentState.validate()) {
+                    if (_formKey.currentState.validate() &&
+                        RegExp(r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$')
+                            .hasMatch(_verifyEmail.text)) {
                       print("validated");
                       _formKey.currentState.save();
                       print("email verification");
@@ -90,10 +89,24 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                           .processForgotPassword(_verifyEmail.text);
                       print("test email verification");
                       print(x);
-                      // Navigator.of(context)
-                      //     .pushReplacementNamed('/resetpassword');
+                      Fluttertoast.showToast(
+                          msg: "Check Your E Mails!",
+                          toastLength: Toast.LENGTH_LONG,
+                          gravity: ToastGravity.SNACKBAR,
+                          timeInSecForIosWeb: 1,
+                          backgroundColor: Colors.cyan[400],
+                          textColor: Colors.black,
+                          fontSize: 16.0);
                     } else {
                       print("Error Occured");
+                      Fluttertoast.showToast(
+                          msg: "Try Again Later!",
+                          toastLength: Toast.LENGTH_LONG,
+                          gravity: ToastGravity.SNACKBAR,
+                          timeInSecForIosWeb: 1,
+                          backgroundColor: Colors.red,
+                          textColor: Colors.white,
+                          fontSize: 16.0);
                     }
                   },
                   child: const Text(

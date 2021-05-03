@@ -79,7 +79,7 @@ class _DashboardState extends State<Dashboard> {
               icon: Icon(Icons.notifications),
               color: Colors.white,
               onPressed: () {
-                Navigator.of(context).pushReplacementNamed('/notifications');
+                Navigator.of(context).pushReplacementNamed('/mypdf');
               }),
         ],
       ),
@@ -208,7 +208,7 @@ class _DashboardState extends State<Dashboard> {
                   ),
                 ),
                 Text(
-                  username == null ? "xxxx" : username.uname,
+                  username == null ? "(Empty)" : username.uname,
                   // "Surangi Kanchana",
                   style: TextStyle(
                     letterSpacing: 2.0,
@@ -352,7 +352,7 @@ class _DashboardState extends State<Dashboard> {
                   endIndent: 10,
                 ),
                 SizedBox(
-                  height: size.height * 0.05,
+                  height: size.height * 0.02,
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,

@@ -82,7 +82,7 @@ class _EditProfileState extends State<EditProfile> {
               SizedBox(
                 height: 20,
               ),
-              emailTextField(),
+              emailContactNoField(),
               SizedBox(
                 height: 20,
               ),
@@ -116,12 +116,11 @@ class _EditProfileState extends State<EditProfile> {
                         .updateUser(_email.text, _contactno.text, userId);
                     bool password = await updatePasswordService.updatePassword(
                         _password.text, userId);
-                    bool image =
-                        await imageUpload.uploadUserImage(_imageFile, userId);
+
                     print("test edit profile");
                     print(emailContactNo);
                     print(password);
-                    print(image);
+
                     Fluttertoast.showToast(
                         msg: "Modified Successfully!",
                         toastLength: Toast.LENGTH_LONG,
@@ -238,15 +237,23 @@ class _EditProfileState extends State<EditProfile> {
           Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
             FlatButton.icon(
               icon: Icon(Icons.camera),
-              onPressed: () {
+              onPressed: () async {
                 takePhoto(ImageSource.camera);
+                var userId = await storage.read(key: "userId");
+                bool image =
+                    await imageUpload.uploadUserImage(_imageFile, userId);
+                print(image);
               },
               label: Text("Camera"),
             ),
             FlatButton.icon(
               icon: Icon(Icons.image),
-              onPressed: () {
+              onPressed: () async {
                 takePhoto(ImageSource.gallery);
+                var userId = await storage.read(key: "userId");
+                bool image =
+                    await imageUpload.uploadUserImage(_imageFile, userId);
+                print(image);
               },
               label: Text("Gallery"),
             ),
@@ -265,32 +272,76 @@ class _EditProfileState extends State<EditProfile> {
     });
   }
 
-  Widget emailTextField() {
-    return TextFormField(
-      controller: _email,
-      validator: (value) {
-        if (value.isEmpty) return;
+  Widget emailContactNoField() {
+    return Container(
+      child: Text("Edit Your Email"),
+    );
+  }
 
-        return null;
-      },
-      decoration: InputDecoration(
-        border: OutlineInputBorder(
-            borderSide: BorderSide(
-          color: Colors.teal,
-        )),
-        focusedBorder: OutlineInputBorder(
-            borderSide: BorderSide(
-          color: Colors.orange,
-          width: 2,
-        )),
-        prefixIcon: Icon(
-          Icons.person,
-          color: Colors.green,
+  void _emailBottomSheetView() {
+    showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          return Container(
+            child: Container(
+              child: _buildBottomSheetMenu(),
+              decoration: BoxDecoration(
+                color: Colors.blue[100],
+              ),
+            ),
+          );
+        });
+  }
+
+  Column _buildBottomSheetMenu() {
+    return Column(
+      children: <Widget>[
+        TextFormField(
+          controller: _email,
+          validator: (value) {
+            if (value.isEmpty) return;
+
+            return null;
+          },
+          decoration: InputDecoration(
+            border: OutlineInputBorder(
+                borderSide: BorderSide(
+              color: Colors.teal,
+            )),
+            focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(
+              color: Colors.orange,
+              width: 2,
+            )),
+            prefixIcon: Icon(
+              Icons.person,
+              color: Colors.green,
+            ),
+            labelText: "E Mail",
+            helperText: "Can't be empty*",
+            hintText: "yourmail@gmail.com",
+          ),
         ),
-        labelText: "E Mail",
-        helperText: "Can't be empty*",
-        hintText: "yourmail@gmail.com",
-      ),
+        Row(
+          children: <Widget>[
+            Container(
+                child: TextButton(onPressed: () {}, child: Text("Cancle"))),
+            Container(
+                child: TextButton(
+                    onPressed: () async {
+                      var userId = await storage.read(key: "userId");
+                      if (_globalkey.currentState.validate() &&
+                          RegExp(r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$')
+                              .hasMatch(_email.text)) {
+                        bool emailContactNo = await updateMailContactNoService
+                            .updateUser(_email.text, _contactno.text, userId);
+                        print(emailContactNo);
+                      }
+                    },
+                    child: Text("Submit")))
+          ],
+        )
+      ],
     );
   }
 

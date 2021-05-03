@@ -1,6 +1,10 @@
+import 'package:amc_new/model/amc_master.dart';
 import 'package:amc_new/model/client_amc.dart';
+import 'package:amc_new/model/user.dart';
 import 'package:amc_new/service/amc_client_service.dart';
 import 'package:amc_new/service/amc_master_service.dart';
+import 'package:amc_new/service/services.dart';
+import 'package:amc_new/service/username_service.dart';
 import 'package:flutter/material.dart';
 import 'package:amc_new/widgets/loading_screen.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -11,40 +15,59 @@ class MyAmc extends StatefulWidget {
 }
 
 class _MyAmcState extends State<MyAmc> {
-  // String selectedType;
-  // List<String> _amcNo = <String>[];
   bool circular = false;
   bool isLoading = true;
-  AmcMasterService amcMasterService = new AmcMasterService();
-
+  AmcMasterService amcMasterService = new AmcMasterService(dioInstance);
   final storage = new FlutterSecureStorage();
+
+  String selectedType;
+  List<String> _amcNo = <String>[];
 
   void initState() {
     super.initState();
     setState(() {
       circular = true;
     });
-    // getAmcNo("userId");
+    fetchUserName();
+    this.getAmcNo();
     this.fetchClientAmc();
   }
 
-  // getAmcNo(String userId) async {
-  //   var amcNoList = await amcMasterService.getAllAmcNo(userId);
-  //   setState(() {
-  //     _amcNo.addAll(amcNoList);
-  //     isLoading = false;
-  //     print(isLoading);
-  //   });
-  // }
+  AmcMaster amcMaster;
+  getAmcNo() async {
+    userId = await storage.read(key: "userId");
+    print(userId.toString() + "aaaaaaaaaaaaaaaaaaaaaaa");
+    var amcMaster = await amcMasterService.getAllAmcNo(userId);
+    print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+    print(amcMaster);
+    if (amcMaster != null) {
+      setState(() {
+        _amcNo = amcMaster;
+        isLoading = false;
+      });
+    }
+  }
 
   ClientAmcService clientAmcService = new ClientAmcService();
 
-// List amount = [];
   ClientAmc amcClient;
   fetchClientAmc() async {
-    amcClient = await clientAmcService.getclientAmc("184165N");
-    // print(amcClient.amc_no + "UOM");
+    amcClient = await clientAmcService.getclientAmc(selectedType);
     if (amcClient != null) {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
+  UserNameService unameService = new UserNameService();
+
+  User username;
+  var userId;
+  fetchUserName() async {
+    userId = await storage.read(key: "userId");
+    username = await unameService.getUsername(userId);
+    if (username != null) {
       setState(() {
         isLoading = false;
       });
@@ -53,9 +76,6 @@ class _MyAmcState extends State<MyAmc> {
 
   @override
   Widget build(BuildContext context) {
-    if (isLoading) {
-      return LoadingScreen();
-    }
     Size size = MediaQuery.of(context).size;
     if (isLoading) {
       return LoadingScreen();
@@ -92,7 +112,9 @@ class _MyAmcState extends State<MyAmc> {
         ],
       ),
       body: Container(
+        margin: EdgeInsets.all(10.0),
         decoration: BoxDecoration(
+          border: Border.all(width: 2.0, color: Colors.grey),
           gradient: LinearGradient(
             begin: const Alignment(-1.0, 0.0),
             end: const Alignment(0.6, 2.0),
@@ -112,38 +134,38 @@ class _MyAmcState extends State<MyAmc> {
             Container(
               padding: EdgeInsets.all(5.0),
               child: Text(
-                "CUSTOMER NAME : ",
+                username == null ? "(Empty)" : username.uname,
                 style: TextStyle(
                     fontSize: 30.0,
                     fontWeight: FontWeight.bold,
                     fontFamily: 'Lateef'),
               ),
             ),
-            // DropdownButton<String>(
-            //   items: _amcNo
-            //       .map((value) => DropdownMenuItem(
-            //             child:
-            //                 Text(value, style: TextStyle(color: Colors.black)),
-            //             value: value,
-            //           ))
-            //       .toList(),
-            //   onChanged: (selectedAMCno) {
-            //     setState(() {
-            //       selectedType = selectedAMCno;
-            //     });
-            //   },
-            //   value: selectedType,
-            //   isExpanded: false,
-            //   hint: Text(
-            //     "Choose Your AMC No",
-            //     style: TextStyle(color: Colors.black54),
-            //   ),
-            // ),
+            DropdownButton<String>(
+              items: _amcNo
+                  .map((value) => DropdownMenuItem(
+                        child:
+                            Text(value, style: TextStyle(color: Colors.black)),
+                        value: value,
+                      ))
+                  .toList(),
+              onChanged: (selectedAMCno) {
+                setState(() {
+                  selectedType = selectedAMCno;
+                });
+              },
+              value: selectedType,
+              isExpanded: false,
+              hint: Text(
+                "Choose Your AMC No",
+                style: TextStyle(color: Colors.black54),
+              ),
+            ),
             SizedBox(
               height: size.height * 0.02,
             ),
             Container(
-              padding: EdgeInsets.only(left: 10.0, top: 10.0),
+              // padding: EdgeInsets.only(left: 10.0, top: 10.0),
               child: Row(
                 children: <Widget>[
                   Container(
@@ -156,7 +178,7 @@ class _MyAmcState extends State<MyAmc> {
                               TextStyle(fontSize: 25.0, fontFamily: 'Lateef'),
                         ),
                         SizedBox(
-                          height: size.height * 0.02,
+                          height: size.height * 0.005,
                         ),
                         Text(
                           "AMC No",
@@ -164,7 +186,7 @@ class _MyAmcState extends State<MyAmc> {
                               TextStyle(fontSize: 25.0, fontFamily: 'Lateef'),
                         ),
                         SizedBox(
-                          height: size.height * 0.02,
+                          height: size.height * 0.005,
                         ),
                         Text(
                           "Maintanance Start Date",
@@ -172,7 +194,7 @@ class _MyAmcState extends State<MyAmc> {
                               TextStyle(fontSize: 25.0, fontFamily: 'Lateef'),
                         ),
                         SizedBox(
-                          height: size.height * 0.02,
+                          height: size.height * 0.005,
                         ),
                         Text(
                           "Maintanance End Date",
@@ -180,7 +202,7 @@ class _MyAmcState extends State<MyAmc> {
                               TextStyle(fontSize: 25.0, fontFamily: 'Lateef'),
                         ),
                         SizedBox(
-                          height: size.height * 0.02,
+                          height: size.height * 0.005,
                         ),
                         Text(
                           "Frequency",
@@ -188,7 +210,7 @@ class _MyAmcState extends State<MyAmc> {
                               TextStyle(fontSize: 25.0, fontFamily: 'Lateef'),
                         ),
                         SizedBox(
-                          height: size.height * 0.02,
+                          height: size.height * 0.005,
                         ),
                         Text(
                           "Category Name",
@@ -196,7 +218,7 @@ class _MyAmcState extends State<MyAmc> {
                               TextStyle(fontSize: 25.0, fontFamily: 'Lateef'),
                         ),
                         SizedBox(
-                          height: size.height * 0.02,
+                          height: size.height * 0.005,
                         ),
                         Text(
                           "AMC Product No",
@@ -204,7 +226,7 @@ class _MyAmcState extends State<MyAmc> {
                               TextStyle(fontSize: 25.0, fontFamily: 'Lateef'),
                         ),
                         SizedBox(
-                          height: size.height * 0.02,
+                          height: size.height * 0.005,
                         ),
                       ],
                     ),
@@ -215,60 +237,70 @@ class _MyAmcState extends State<MyAmc> {
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: <Widget>[
                         Text(
-                          amcClient == null ? "xxxx" : amcClient.amc_serial_no,
+                          amcClient == null ? "(Empty)" : amcClient.amcSerialNo,
                           style:
                               TextStyle(fontSize: 25.0, fontFamily: 'Lateef'),
                         ),
                         SizedBox(
-                          height: size.height * 0.02,
+                          height: size.height * 0.005,
                         ),
                         Text(
-                          amcClient == null ? "xxxx" : amcClient.amc_no,
+                          amcClient == null ? "(Empty)" : amcClient.amcNo,
                           style:
                               TextStyle(fontSize: 25.0, fontFamily: 'Lateef'),
                         ),
                         SizedBox(
-                          height: size.height * 0.02,
+                          height: size.height * 0.005,
                         ),
                         Text(
-                          amcClient == null ? "xxxx" : amcClient.mtc_start_date,
+                          amcClient == null
+                              ? "(Empty)"
+                              : amcClient.mtcStartDate.toString(),
                           style:
                               TextStyle(fontSize: 25.0, fontFamily: 'Lateef'),
                         ),
                         SizedBox(
-                          height: size.height * 0.02,
+                          height: size.height * 0.005,
                         ),
                         Text(
-                          amcClient == null ? "xxxx" : amcClient.mtc_end_date,
+                          amcClient == null
+                              ? "(Empty)"
+                              : amcClient.mtcEndDate.toString(),
                           style:
                               TextStyle(fontSize: 25.0, fontFamily: 'Lateef'),
                         ),
                         SizedBox(
-                          height: size.height * 0.02,
+                          height: size.height * 0.005,
                         ),
                         Text(
-                          amcClient == null ? "xxxx" : amcClient.frequency,
+                          amcClient == null
+                              ? "(Empty)"
+                              : amcClient.frequency.toString(),
                           style:
                               TextStyle(fontSize: 25.0, fontFamily: 'Lateef'),
                         ),
                         SizedBox(
-                          height: size.height * 0.02,
+                          height: size.height * 0.005,
                         ),
                         Text(
-                          amcClient == null ? "xxxx" : amcClient.category_name,
+                          amcClient == null
+                              ? "(Empty)"
+                              : amcClient.categoryName,
                           style:
                               TextStyle(fontSize: 25.0, fontFamily: 'Lateef'),
                         ),
                         SizedBox(
-                          height: size.height * 0.02,
+                          height: size.height * 0.005,
                         ),
                         Text(
-                          amcClient == null ? "xxxx" : amcClient.amc_product_no,
+                          amcClient == null
+                              ? "(Empty)"
+                              : amcClient.amcProductNo.toString(),
                           style:
                               TextStyle(fontSize: 25.0, fontFamily: 'Lateef'),
                         ),
                         SizedBox(
-                          height: size.height * 0.02,
+                          height: size.height * 0.005,
                         ),
                         // Text(
                         //   "151000",
