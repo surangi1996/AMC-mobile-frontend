@@ -1,15 +1,16 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:amc_new/model/user.dart';
 import 'package:amc_new/service/userService.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_config/flutter_config.dart';
 
-String api = "http://10.0.2.2:8082/User/getProfile";
+String api = FlutterConfig.get('API_URL');
 
 class ProfileService {
+  // ignore: missing_return
   Future<User> getUserById(String userId) async {
-    http.Response response = await http.get(api + '/$userId',
+    http.Response response = await http.get(api + '/User/allusers/$userId',
         headers: {HttpHeaders.contentTypeHeader: contentTypeHeader});
     if (response.statusCode == 200) {
       var responseBody = json.decode(response.body);

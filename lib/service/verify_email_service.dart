@@ -1,10 +1,9 @@
 import 'dart:convert';
-import 'dart:io';
-
-import 'package:amc_new/model/user.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_config/flutter_config.dart';
 
-var api = 'http://192.168.8.100:8082/user';
+String api = FlutterConfig.get('API_URL');
+
 String contentTypeHeader = 'application/json';
 
 class VerifyEmailService {
@@ -12,7 +11,7 @@ class VerifyEmailService {
   Future<bool> processForgotPassword(String email) async {
     try {
       var response = await http.post(
-        'http://10.0.2.2:8082/User/forgot_password',
+        api + '/User/forgot_password',
         // headers: {HttpHeaders.contentTypeHeader: contentTypeHeader},
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',

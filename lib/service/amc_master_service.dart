@@ -1,22 +1,12 @@
-import 'dart:convert';
-import 'dart:io';
+import 'package:retrofit/retrofit.dart';
+import 'package:dio/dio.dart';
 
-import 'package:amc_new/model/amc_master.dart';
-import 'package:amc_new/service/userService.dart';
-import 'package:http/http.dart' as http;
+part 'amc_master_service.g.dart';
 
-String api = "http://10.0.2.2:8082/amcMaster/allamcno";
+@RestApi()
+abstract class AmcMasterService {
+  factory AmcMasterService(Dio dio, {String baseUrl}) = _AmcMasterService;
 
-class AmcMasterService {
-  Future<List<String>> getAllAmcNo(String userId) async {
-    http.Response response = await http.get(api + '/$userId',
-        headers: {HttpHeaders.contentTypeHeader: contentTypeHeader});
-    if (response.statusCode == 200) {
-      var responseBody = json.decode(response.body);
-      // AmcMaster amcMaster = AmcMaster.fromJson(responseBody);
-
-      print(response.body);
-      // return <String>[amcMaster.amcNo];
-    }
-  }
+  @GET('/amcMaster/allamcno/{userId}')
+  Future<List<String>> getAllAmcNo(@Path('userId') String userId);
 }

@@ -1,19 +1,18 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:amc_new/model/proforma_invoice.dart';
 import 'package:amc_new/service/userService.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_config/flutter_config.dart';
 
-String api = "http://10.0.2.2:8082/invoice/totalamountpayble";
+String api = FlutterConfig.get('API_URL');
 
 class ProformaInvoiceService {
   // ignore: missing_return
   Future<ProformaInvoice> totalPaybleAmount(String userId) async {
     // http.Response
     try {
-      var response = await http.get(
-          'http://10.0.2.2:8082/invoice/totalamountpayble/$userId',
+      var response = await http.get(api + '/invoice/totalamountpayble/$userId',
           headers: {HttpHeaders.contentTypeHeader: contentTypeHeader});
       print(response.statusCode);
       if (response.statusCode == 200) {

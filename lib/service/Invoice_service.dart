@@ -1,27 +1,33 @@
 import 'dart:convert';
-import 'dart:io';
-
-import 'package:amc_new/model/invoice.dart';
-import 'package:amc_new/service/userService.dart';
+import 'package:amc_new/model/bill.dart';
 import 'package:http/http.dart' as http;
+import 'package:flutter_config/flutter_config.dart';
+
+String api = FlutterConfig.get('API_URL');
 
 class InvoiceService {
   // ignore: missing_return
-  Future<Invoice> getInvoice(String amcNo) async {
-    // http.Response
+  Future<ClientInvoice> getclientInvoice(String amcNo) async {
     try {
       var response = await http.get(
-          'http://10.0.2.2:8082/report/getinvoicereport/$amcNo',
-          headers: {HttpHeaders.contentTypeHeader: contentTypeHeader});
-      print(response.statusCode);
+        api + '/report/getinvoicereport/$amcNo',
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+      );
+      print("------------------------------------------------");
       if (response.statusCode == 200) {
         print(response.body);
-        print(json.decode(response.body));
-        var responseBody = json.decode(response.body);
-        Invoice invoice = Invoice.fromJson(responseBody);
-        return invoice;
-      } else {
         print(response.statusCode);
+        print("-------------------------------------------------");
+        List<ClientInvoice> clientInvoiceFromJson(String str) =>
+            List<ClientInvoice>.from(
+                json.decode(str).map((x) => ClientInvoice.fromJson(x)));
+        List<ClientInvoice> clientInvoicelist =
+            clientInvoiceFromJson(response.body);
+        return clientInvoicelist[0];
+      } else {
+        print("Not Found");
       }
     } catch (e) {
       print(e.toString());

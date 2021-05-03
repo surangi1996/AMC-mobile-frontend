@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:http/http.dart' as http;
 import 'package:amc_new/model/user.dart';
+import 'package:flutter_config/flutter_config.dart';
 
-var api = 'http://192.168.8.100:8082/user';
+String api = FlutterConfig.get('API_URL');
 String contentTypeHeader = 'application/json';
 
 class UserService {
@@ -12,7 +12,7 @@ class UserService {
   Future<User> getProfile(String id) async {
     try {
       // print(id);
-      var response = await http.get(api + '/getProfile/$id',
+      var response = await http.get(api + '/allusers/$id',
           headers: {HttpHeaders.contentTypeHeader: contentTypeHeader});
       if (response.statusCode == 200) {
         // print(response.body);
