@@ -1,5 +1,6 @@
 import 'package:amc_new/model/bill.dart';
 import 'package:amc_new/service/Invoice_service.dart';
+import 'package:amc_new/widgets/appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -9,14 +10,6 @@ class Bills extends StatefulWidget {
 }
 
 class _BillsState extends State<Bills> {
-  // List<String> _amcNo = <String>[
-  //   "AMC No 1",
-  //   "AMC No 2",
-  //   "AMC No 3",
-  //   "AMC No 4",
-  //   "AMC No 5"
-  // ];
-
   bool circular = false;
   bool isLoading = true;
   InvoiceService billService = new InvoiceService();
@@ -31,9 +24,9 @@ class _BillsState extends State<Bills> {
     fetchInvoice();
   }
 
-  ClientInvoice clientInvoice;
+  List<ClientInvoice> clientInvoice;
   fetchInvoice() async {
-    clientInvoice = await billService.getclientInvoice("1");
+    clientInvoice = await billService.getclientInvoice("2001");
     if (clientInvoice != null) {
       setState(() {
         isLoading = false;
@@ -48,36 +41,7 @@ class _BillsState extends State<Bills> {
     //   return LoadingScreen();
     // }
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        title: Text(
-          "Epic Lanka",
-          style: TextStyle(
-              fontSize: 25.0,
-              color: Colors.blueAccent[100],
-              fontFamily: 'PlayfairDisplay'),
-        ),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.of(context).pushReplacementNamed('/bills');
-          },
-        ),
-        actions: <Widget>[
-          IconButton(
-              icon: Icon(Icons.home),
-              color: Colors.white,
-              onPressed: () {
-                Navigator.of(context).pushReplacementNamed('/dashboard');
-              }),
-          IconButton(
-              icon: Icon(Icons.notifications),
-              color: Colors.white,
-              onPressed: () {
-                Navigator.of(context).pushReplacementNamed('/notifications');
-              }),
-        ],
-      ),
+      appBar: appBar(context),
       body: Container(
         margin: EdgeInsets.all(10.0),
         decoration: BoxDecoration(
@@ -219,7 +183,7 @@ class _BillsState extends State<Bills> {
                         Text(
                           clientInvoice == null
                               ? "(Empty)"
-                              : clientInvoice.amcNo,
+                              : clientInvoice[0].amcNo,
                           style: TextStyle(
                               fontSize: 25.0,
                               fontFamily: 'Lateef',
@@ -231,7 +195,7 @@ class _BillsState extends State<Bills> {
                         Text(
                           clientInvoice == null
                               ? "(Empty)"
-                              : clientInvoice.categoryName,
+                              : clientInvoice[0].categoryName,
                           style: TextStyle(
                               fontSize: 25.0,
                               fontFamily: 'Lateef',
@@ -243,7 +207,7 @@ class _BillsState extends State<Bills> {
                         Text(
                           clientInvoice == null
                               ? "(Empty)"
-                              : clientInvoice.currencyName,
+                              : clientInvoice[0].currencyName,
                           style: TextStyle(
                               fontSize: 25.0,
                               fontFamily: 'Lateef',
@@ -255,7 +219,7 @@ class _BillsState extends State<Bills> {
                         Text(
                           clientInvoice == null
                               ? "(Empty)"
-                              : clientInvoice.exchangeRate.toString(),
+                              : clientInvoice[0].exchangeRate.toString(),
                           style: TextStyle(
                               fontSize: 25.0,
                               fontFamily: 'Lateef',
@@ -267,7 +231,7 @@ class _BillsState extends State<Bills> {
                         Text(
                           clientInvoice == null
                               ? "(Empty)"
-                              : clientInvoice.totalTax.toString(),
+                              : clientInvoice[0].totalTax.toString(),
                           style: TextStyle(
                               fontSize: 25.0,
                               fontFamily: 'Lateef',
@@ -279,7 +243,7 @@ class _BillsState extends State<Bills> {
                         Text(
                           clientInvoice == null
                               ? "(Empty)"
-                              : clientInvoice.totalAmount.toString(),
+                              : clientInvoice[0].totalAmount.toString(),
                           style: TextStyle(
                               fontSize: 25.0,
                               fontFamily: 'Lateef',
@@ -291,7 +255,7 @@ class _BillsState extends State<Bills> {
                         Text(
                           clientInvoice == null
                               ? "(Empty)"
-                              : clientInvoice.invoiceAmount.toString(),
+                              : clientInvoice[0].invoiceAmount.toString(),
                           style: TextStyle(
                               fontSize: 25.0,
                               fontFamily: 'Lateef',
@@ -303,7 +267,7 @@ class _BillsState extends State<Bills> {
                         Text(
                           clientInvoice == null
                               ? "(Empty)"
-                              : clientInvoice.totalAmountPayble.toString(),
+                              : clientInvoice[0].totalAmountPayble.toString(),
                           style: TextStyle(
                               fontSize: 25.0,
                               fontWeight: FontWeight.bold,

@@ -28,9 +28,13 @@ class _MyAmcState extends State<MyAmc> {
     setState(() {
       circular = true;
     });
-    fetchUserName();
-    this.getAmcNo();
-    this.fetchClientAmc();
+    this.fetchUserName();
+    getAmcDetails();
+  }
+
+  getAmcDetails() async {
+    await getAmcNo();
+    await fetchClientAmc(selectedType);
   }
 
   AmcMaster amcMaster;
@@ -43,6 +47,7 @@ class _MyAmcState extends State<MyAmc> {
     if (amcMaster != null) {
       setState(() {
         _amcNo = amcMaster;
+        selectedType = _amcNo[0];
         isLoading = false;
       });
     }
@@ -51,8 +56,8 @@ class _MyAmcState extends State<MyAmc> {
   ClientAmcService clientAmcService = new ClientAmcService();
 
   ClientAmc amcClient;
-  fetchClientAmc() async {
-    amcClient = await clientAmcService.getclientAmc(selectedType);
+  fetchClientAmc(String type) async {
+    amcClient = await clientAmcService.getclientAmc(type);
     if (amcClient != null) {
       setState(() {
         isLoading = false;
@@ -149,10 +154,13 @@ class _MyAmcState extends State<MyAmc> {
                         value: value,
                       ))
                   .toList(),
-              onChanged: (selectedAMCno) {
+              onChanged: (selectedAMCno) async {
+                await fetchClientAmc(selectedAMCno);
                 setState(() {
                   selectedType = selectedAMCno;
                 });
+                print("selectedType");
+                print(selectedType);
               },
               value: selectedType,
               isExpanded: false,
@@ -165,7 +173,6 @@ class _MyAmcState extends State<MyAmc> {
               height: size.height * 0.02,
             ),
             Container(
-              // padding: EdgeInsets.only(left: 10.0, top: 10.0),
               child: Row(
                 children: <Widget>[
                   Container(

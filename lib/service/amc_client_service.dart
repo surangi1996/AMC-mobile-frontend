@@ -1,18 +1,19 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:amc_new/model/client_amc.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_config/flutter_config.dart';
 
-String api = FlutterConfig.get('API_URL');
+String uri = FlutterConfig.get('API_URL');
 
 class ClientAmcService {
   // ignore: missing_return
   Future<ClientAmc> getclientAmc(String amcNo) async {
     try {
       var response = await http.get(
-        api + '/report/getamcreport/$amcNo',
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
+        uri + '/report/getamcreport/$amcNo',
+        headers: {
+          HttpHeaders.authorizationHeader: 'jwt',
         },
       );
       print("------------------------------------------------");

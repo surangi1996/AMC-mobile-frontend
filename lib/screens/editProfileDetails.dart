@@ -1,23 +1,29 @@
 import 'dart:io';
+
+import 'package:amc_new/model/user.dart';
 import 'package:amc_new/service/image_upload_service.dart';
+import 'package:amc_new/service/profile_service.dart';
 import 'package:amc_new/service/update_mailandcontactno.dart';
 import 'package:amc_new/service/update_password_service.dart';
+import 'package:amc_new/widgets/Alert.dart';
+import 'package:amc_new/widgets/appbar.dart';
+import 'package:amc_new/widgets/errorAlert.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:image_picker/image_picker.dart';
 
-class EditProfile extends StatefulWidget {
-  EditProfile({Key key}) : super(key: key);
-
+class EditProfileDetails extends StatefulWidget {
   @override
-  _EditProfileState createState() => _EditProfileState();
+  _EditProfileDetailsState createState() => _EditProfileDetailsState();
 }
 
-class _EditProfileState extends State<EditProfile> {
+class _EditProfileDetailsState extends State<EditProfileDetails> {
   bool circular = false;
   PickedFile _imageFile;
-  final _globalkey = GlobalKey<FormState>();
+  final _globalkeyA = GlobalKey<FormState>();
+  final _globalkeyB = GlobalKey<FormState>();
+  final _globalkeyC = GlobalKey<FormState>();
   TextEditingController _email = TextEditingController();
   TextEditingController _password = TextEditingController();
   TextEditingController _confirmpassword = TextEditingController();
@@ -32,186 +38,193 @@ class _EditProfileState extends State<EditProfile> {
   ImageUpload imageUpload = new ImageUpload();
 
   final storage = new FlutterSecureStorage();
+  ProfileService profileService = ProfileService();
+
+  void initState() {
+    super.initState();
+    setState(() {
+      circular = true;
+    });
+    fetchUsers();
+  }
+
+  User userprofile;
+  bool isLoading = true;
+  var userId;
+  fetchUsers() async {
+    userId = await storage.read(key: "userId");
+    userprofile = await profileService.getUserById(userId);
+    if (userprofile != null) {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    // if (isLoading) {
-    //   return LoadingScreen();
-    // }
     return GestureDetector(
-      onTap: () {
-        FocusScope.of(context).requestFocus(FocusNode());
-      },
-      child: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Colors.black,
-          title: Text(
-            "Epic Lanka",
-            style: TextStyle(
-                fontSize: 25.0,
-                color: Colors.blueAccent[100],
-                fontFamily: 'PlayfairDisplay'),
+        onTap: () {
+          FocusScope.of(context).requestFocus(FocusNode());
+        },
+        child: Scaffold(
+          appBar: appBar(context),
+          body: Form(
+            child: ListView(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+              children: <Widget>[
+                imageProfile(),
+                SizedBox(
+                  height: 20,
+                ),
+                Container(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        "Edit Your Contact No And E Mail",
+                        style: TextStyle(
+                            color: Colors.orange[800],
+                            fontSize: 20.0,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      emailContactNo(),
+                      SizedBox(
+                        height: 20,
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(
+                  height: 20,
+                ),
+                Container(
+                  child: Column(
+                    children: <Widget>[
+                      Text(
+                        "Edit Your Password",
+                        style: TextStyle(
+                            color: Colors.orange[800],
+                            fontSize: 20.0,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      managePassword(),
+                      SizedBox(
+                        height: 20,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
-          leading: IconButton(
-            icon: Icon(Icons.arrow_back),
-            onPressed: () {
-              Navigator.of(context).pushReplacementNamed('/dashboard');
-            },
-          ),
-          actions: <Widget>[
-            IconButton(
-                icon: Icon(Icons.home),
-                color: Colors.white,
-                onPressed: () {
-                  Navigator.of(context).pushReplacementNamed('/dashboard');
-                }),
-            IconButton(
-                icon: Icon(Icons.notifications),
-                color: Colors.white,
-                onPressed: () {
-                  Navigator.of(context).pushReplacementNamed('/notifications');
-                }),
-          ],
-        ),
-        body: Form(
-          key: _globalkey,
-          child: ListView(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
-            children: <Widget>[
-              imageProfile(),
-              SizedBox(
-                height: 20,
-              ),
-              emailContactNoField(),
-              SizedBox(
-                height: 20,
-              ),
-              passwordField(),
-              SizedBox(
-                height: 20,
-              ),
-              confirmpasswordTextField(),
-              SizedBox(
-                height: 20,
-              ),
-              contactnoTextField(),
-              SizedBox(
-                height: 20,
-              ),
-              InkWell(
-                onTap: () async {
-                  var userId = await storage.read(key: "userId");
-                  if (_globalkey.currentState.validate() &&
-                      RegExp(r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$')
-                          .hasMatch(_email.text) &&
-                      RegExp(r'(^(?:[+0]9)?[0-9]{10,12}$)')
-                          .hasMatch(_contactno.text) &&
-                      _password.text == _confirmpassword.text) {
-                    print("validated");
-                    _globalkey.currentState.save();
-                    print("edit profile");
-                    print(_email.text);
-                    print(_email.value.toString());
-                    bool emailContactNo = await updateMailContactNoService
-                        .updateUser(_email.text, _contactno.text, userId);
-                    bool password = await updatePasswordService.updatePassword(
-                        _password.text, userId);
+        ));
+  }
 
-                    print("test edit profile");
-                    print(emailContactNo);
-                    print(password);
-
-                    Fluttertoast.showToast(
-                        msg: "Modified Successfully!",
-                        toastLength: Toast.LENGTH_LONG,
-                        gravity: ToastGravity.SNACKBAR,
-                        timeInSecForIosWeb: 1,
-                        backgroundColor: Colors.tealAccent,
-                        textColor: Colors.white,
-                        fontSize: 16.0);
-                  } else {
-                    print("Error Occured");
-                    Fluttertoast.showToast(
-                        msg: "Please Try Again Later!",
-                        toastLength: Toast.LENGTH_LONG,
-                        gravity: ToastGravity.SNACKBAR,
-                        timeInSecForIosWeb: 1,
-                        backgroundColor: Colors.red,
-                        textColor: Colors.white,
-                        fontSize: 16.0);
-                  }
-                },
-                child: Center(
-                  child: Container(
-                    width: 200,
-                    height: 50,
-                    decoration: BoxDecoration(
-                      color: Colors.blueAccent,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Center(
-                      child: circular
-                          ? CircularProgressIndicator()
-                          : Text(
-                              "Submit",
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                    ),
+  Widget imageProfile() {
+    return Form(
+      key: _globalkeyA,
+      child: Center(
+        child: Column(
+          children: [
+            Stack(children: <Widget>[
+              CircleAvatar(
+                radius: 80.0,
+                backgroundImage: _imageFile == null
+                    ? AssetImage("assets/profile.png")
+                    : FileImage(File(_imageFile.path)),
+              ),
+              Positioned(
+                bottom: 15.0,
+                right: 20.0,
+                child: InkWell(
+                  onTap: () {
+                    showModalBottomSheet(
+                      context: context,
+                      builder: ((builder) => bottomSheet()),
+                    );
+                  },
+                  child: Icon(
+                    Icons.camera_alt,
+                    color: Colors.blueAccent,
+                    size: 28.0,
                   ),
                 ),
               ),
-            ],
-          ),
+            ]),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                InkWell(
+                  onTap: () async {
+                    var userId = await storage.read(key: "userId");
+                    if (_imageFile != null) {
+                      print("validated");
+                      _globalkeyA.currentState.save();
+                      bool image =
+                          await imageUpload.uploadUserImage(_imageFile, userId);
+                      print("test edit profile");
+                      print(image);
+                      showAlertDialog(context);
+                    } else {
+                      print("Error Occured");
+                      errorAlertDialog(context);
+                    }
+                  },
+                  child: Container(
+                    width: 100,
+                    height: 50,
+                    decoration: BoxDecoration(
+                        // color: Colors.blueAccent,
+                        borderRadius: BorderRadius.circular(10),
+                        border:
+                            Border.all(width: 2.0, color: Colors.blueAccent)),
+                    child: Center(
+                      child: Text(
+                        "Submit",
+                        style: TextStyle(
+                          color: Colors.blueAccent,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: 15.0,
+                ),
+                Container(
+                  width: 100,
+                  height: 50,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(width: 2.0, color: Colors.red)),
+                  child: Center(
+                    child: Text(
+                      "Cancel",
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(
+              height: 20,
+            ),
+          ],
         ),
       ),
-    );
-  }
-
-  // Widget succesDialog() {
-  //   return AlertDialog(
-  //     title: Text("Success!"),
-  //     content: Text("You Have SuccessFully Modified!"),
-  //     actions: [
-  //       new FlatButton(
-  //           onPressed: () {
-  //             Navigator.of(context).pop();
-  //           },
-  //           child: Text("Close"))
-  //     ],
-  //   );
-  // }
-
-  Widget imageProfile() {
-    return Center(
-      child: Stack(children: <Widget>[
-        CircleAvatar(
-          radius: 80.0,
-          backgroundImage: _imageFile == null
-              ? AssetImage("assets/profile.png")
-              : FileImage(File(_imageFile.path)),
-        ),
-        Positioned(
-          bottom: 15.0,
-          right: 20.0,
-          child: InkWell(
-            onTap: () {
-              showModalBottomSheet(
-                context: context,
-                builder: ((builder) => bottomSheet()),
-              );
-            },
-            child: Icon(
-              Icons.camera_alt,
-              color: Colors.blueAccent,
-              size: 28.0,
-            ),
-          ),
-        ),
-      ]),
     );
   }
 
@@ -237,23 +250,15 @@ class _EditProfileState extends State<EditProfile> {
           Row(mainAxisAlignment: MainAxisAlignment.center, children: <Widget>[
             FlatButton.icon(
               icon: Icon(Icons.camera),
-              onPressed: () async {
+              onPressed: () {
                 takePhoto(ImageSource.camera);
-                var userId = await storage.read(key: "userId");
-                bool image =
-                    await imageUpload.uploadUserImage(_imageFile, userId);
-                print(image);
               },
               label: Text("Camera"),
             ),
             FlatButton.icon(
               icon: Icon(Icons.image),
-              onPressed: () async {
+              onPressed: () {
                 takePhoto(ImageSource.gallery);
-                var userId = await storage.read(key: "userId");
-                bool image =
-                    await imageUpload.uploadUserImage(_imageFile, userId);
-                print(image);
               },
               label: Text("Gallery"),
             ),
@@ -272,76 +277,214 @@ class _EditProfileState extends State<EditProfile> {
     });
   }
 
-  Widget emailContactNoField() {
-    return Container(
-      child: Text("Edit Your Email"),
+  Widget emailContactNo() {
+    return Form(
+      key: _globalkeyB,
+      child: Container(
+        child: Column(
+          children: [
+            emailTextField(),
+            SizedBox(
+              height: 20,
+            ),
+            contactnoTextField(),
+            SizedBox(
+              height: 20,
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                InkWell(
+                  onTap: () async {
+                    var userId = await storage.read(key: "userId");
+                    if (_globalkeyB.currentState.validate() &&
+                        RegExp(r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$')
+                            .hasMatch(_email.text) &&
+                        RegExp(r'(^(?:[+0]9)?[0-9]{10,12}$)')
+                            .hasMatch(_contactno.text)) {
+                      print("validated");
+                      _globalkeyB.currentState.save();
+                      print("edit profile");
+                      print(_email.text);
+                      bool emailContactNo = await updateMailContactNoService
+                          .updateUser(_email.text, _contactno.text, userId);
+                      print("test edit profile");
+                      print(emailContactNo);
+                      // Fluttertoast.showToast(
+                      //     msg: "Modified Successfully!",
+                      //     toastLength: Toast.LENGTH_LONG,
+                      //     gravity: ToastGravity.SNACKBAR,
+                      //     timeInSecForIosWeb: 1,
+                      //     backgroundColor: Colors.tealAccent,
+                      //     textColor: Colors.white,
+                      //     fontSize: 16.0);
+                      showAlertDialog(context);
+                    } else {
+                      print("Error Occured");
+                      //   Fluttertoast.showToast(
+                      //       msg: "Please Try Again Later!",
+                      //       toastLength: Toast.LENGTH_LONG,
+                      //       gravity: ToastGravity.SNACKBAR,
+                      //       timeInSecForIosWeb: 1,
+                      //       backgroundColor: Colors.red,
+                      //       textColor: Colors.white,
+                      //       fontSize: 16.0);
+                      errorAlertDialog(context);
+                    }
+                  },
+                  child: Container(
+                    width: 100,
+                    height: 50,
+                    decoration: BoxDecoration(
+                        // color: Colors.blueAccent,
+                        borderRadius: BorderRadius.circular(10),
+                        border:
+                            Border.all(width: 2.0, color: Colors.blueAccent)),
+                    child: Center(
+                      child: Text(
+                        "Submit",
+                        style: TextStyle(
+                          color: Colors.blueAccent,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(
+                  width: 15.0,
+                ),
+                Container(
+                  width: 100,
+                  height: 50,
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(width: 2.0, color: Colors.red)),
+                  child: Center(
+                    child: Text(
+                      "Cancel",
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
     );
   }
 
-  void _emailBottomSheetView() {
-    showModalBottomSheet(
-        context: context,
-        builder: (context) {
-          return Container(
-            child: Container(
-              child: _buildBottomSheetMenu(),
-              decoration: BoxDecoration(
-                color: Colors.blue[100],
-              ),
-            ),
-          );
-        });
+  Widget emailTextField() {
+    return TextFormField(
+      controller: _email,
+      validator: (value) {
+        if (value.isEmpty) return;
+
+        return null;
+      },
+      decoration: InputDecoration(
+        border: OutlineInputBorder(
+            borderSide: BorderSide(
+          color: Colors.teal,
+        )),
+        focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(
+          color: Colors.orange,
+          width: 2,
+        )),
+        prefixIcon: Icon(
+          Icons.email,
+          color: Colors.blueAccent,
+        ),
+        labelText: "E mail",
+        hintText: "youremail@gmail.com",
+      ),
+    );
   }
 
-  Column _buildBottomSheetMenu() {
-    return Column(
-      children: <Widget>[
-        TextFormField(
-          controller: _email,
-          validator: (value) {
-            if (value.isEmpty) return;
-
-            return null;
-          },
-          decoration: InputDecoration(
-            border: OutlineInputBorder(
-                borderSide: BorderSide(
-              color: Colors.teal,
-            )),
-            focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(
-              color: Colors.orange,
-              width: 2,
-            )),
-            prefixIcon: Icon(
-              Icons.person,
-              color: Colors.green,
-            ),
-            labelText: "E Mail",
-            helperText: "Can't be empty*",
-            hintText: "yourmail@gmail.com",
+  Widget managePassword() {
+    return Form(
+      key: _globalkeyC,
+      child: Container(
+          child: Column(
+        children: [
+          passwordField(),
+          SizedBox(
+            height: 20,
           ),
-        ),
-        Row(
-          children: <Widget>[
-            Container(
-                child: TextButton(onPressed: () {}, child: Text("Cancle"))),
-            Container(
-                child: TextButton(
-                    onPressed: () async {
-                      var userId = await storage.read(key: "userId");
-                      if (_globalkey.currentState.validate() &&
-                          RegExp(r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$')
-                              .hasMatch(_email.text)) {
-                        bool emailContactNo = await updateMailContactNoService
-                            .updateUser(_email.text, _contactno.text, userId);
-                        print(emailContactNo);
-                      }
-                    },
-                    child: Text("Submit")))
-          ],
-        )
-      ],
+          confirmpasswordTextField(),
+          SizedBox(
+            height: 20,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              InkWell(
+                onTap: () async {
+                  var userId = await storage.read(key: "userId");
+                  if (_globalkeyC.currentState.validate() &&
+                      _password.text == _confirmpassword.text) {
+                    print("validated");
+                    _globalkeyC.currentState.save();
+                    bool password = await updatePasswordService.updatePassword(
+                        _password.text, userId);
+                    print("test edit profile");
+                    print(password);
+                    showAlertDialog(context);
+                  } else {
+                    print("Error Occured");
+                    errorAlertDialog(context);
+                  }
+                },
+                child: Container(
+                  width: 100,
+                  height: 50,
+                  decoration: BoxDecoration(
+                      // color: Colors.blueAccent,
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(width: 2.0, color: Colors.blueAccent)),
+                  child: Center(
+                    child: Text(
+                      "Submit",
+                      style: TextStyle(
+                        color: Colors.blueAccent,
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 15.0,
+              ),
+              Container(
+                width: 100,
+                height: 50,
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(width: 2.0, color: Colors.red)),
+                child: Center(
+                  child: Text(
+                    "Cancel",
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      )),
     );
   }
 
@@ -365,11 +508,10 @@ class _EditProfileState extends State<EditProfile> {
           width: 2,
         )),
         prefixIcon: Icon(
-          Icons.person,
-          color: Colors.green,
+          Icons.lock,
+          color: Colors.blueAccent,
         ),
         labelText: "Password",
-        helperText: "Can't be empty",
         hintText: "*******",
         suffixIcon:
             InkWell(onTap: _togglePasswordView, child: Icon(Icons.visibility)),
@@ -403,11 +545,10 @@ class _EditProfileState extends State<EditProfile> {
           width: 2,
         )),
         prefixIcon: Icon(
-          Icons.person,
-          color: Colors.green,
+          Icons.lock,
+          color: Colors.blueAccent,
         ),
         labelText: "Confirm Password",
-        helperText: "Can't be empty",
         hintText: "*******",
         suffixIcon: InkWell(
             onTap: _toggleConfirmPasswordView, child: Icon(Icons.visibility)),
@@ -442,11 +583,10 @@ class _EditProfileState extends State<EditProfile> {
         )),
         prefixIcon: Icon(
           Icons.person,
-          color: Colors.green,
+          color: Colors.blueAccent,
         ),
-        labelText: "Contact Number",
-        helperText: "can't be empty*",
-        hintText: "xxx xxx xxx",
+        labelText: "Contact No",
+        hintText: "xxx xxx xxxx",
       ),
     );
   }

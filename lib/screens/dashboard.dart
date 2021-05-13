@@ -1,6 +1,7 @@
 import 'package:amc_new/model/proforma_invoice.dart';
 import 'package:amc_new/model/user.dart';
 import 'package:amc_new/service/profrma_invoice_service.dart';
+import 'package:amc_new/widgets/appbar.dart';
 import 'package:amc_new/widgets/loading_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:amc_new/service/username_service.dart';
@@ -79,7 +80,7 @@ class _DashboardState extends State<Dashboard> {
               icon: Icon(Icons.notifications),
               color: Colors.white,
               onPressed: () {
-                Navigator.of(context).pushReplacementNamed('/mypdf');
+                Navigator.of(context).pushReplacementNamed('/notifications');
               }),
         ],
       ),
@@ -154,6 +155,27 @@ class _DashboardState extends State<Dashboard> {
               ),
               onTap: () {
                 Navigator.of(context).pushReplacementNamed('/suport');
+              },
+            ),
+            ListTile(
+              title: Row(
+                children: [
+                  Icon(Icons.file_download),
+                  Container(
+                    padding: EdgeInsets.only(left: 15.0),
+                    child: Text(
+                      'Download Your Reports',
+                      style: TextStyle(
+                        fontFamily: 'Quicksand',
+                        fontSize: 17.0,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              onTap: () {
+                Navigator.of(context).pushReplacementNamed('/downloads');
               },
             ),
             ListTile(

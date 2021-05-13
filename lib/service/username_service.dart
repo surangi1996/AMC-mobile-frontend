@@ -11,8 +11,12 @@ class UserNameService {
   // ignore: missing_return
   Future<User> getUsername(String id) async {
     try {
-      var response = await http.get(api + "/User/getUname/$id",
-          headers: {HttpHeaders.contentTypeHeader: contentTypeHeader});
+      var response = await http.get(
+        api + "/User/getUname/$id",
+        headers: {
+          HttpHeaders.authorizationHeader: 'jwt',
+        },
+      );
       print(api);
       if (response.statusCode == 200) {
         var responseBody = json.decode(response.body);

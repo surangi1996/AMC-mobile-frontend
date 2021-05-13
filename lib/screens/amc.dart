@@ -1,3 +1,4 @@
+import 'package:amc_new/widgets/appbar.dart';
 import 'package:flutter/material.dart';
 
 class Amc extends StatefulWidget {
@@ -10,31 +11,7 @@ class _AmcState extends State<Amc> {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        title: Text(
-          "Epic Lanka",
-          style: TextStyle(
-              fontSize: 25.0,
-              color: Colors.blueAccent[100],
-              fontFamily: 'PlayfairDisplay'),
-        ),
-        leading: Image.asset("assets/epic-lanka-logo.png"),
-        actions: <Widget>[
-          IconButton(
-              icon: Icon(Icons.home),
-              color: Colors.white,
-              onPressed: () {
-                Navigator.of(context).pushReplacementNamed('/dashboard');
-              }),
-          IconButton(
-              icon: Icon(Icons.notifications),
-              color: Colors.white,
-              onPressed: () {
-                Navigator.of(context).pushReplacementNamed('/notifications');
-              }),
-        ],
-      ),
+      appBar: appBar(context),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(

@@ -1,11 +1,15 @@
 import 'package:amc_new/model/user.dart';
 import 'package:amc_new/service/profile_service.dart';
+import 'package:amc_new/widgets/appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:flutter_config/flutter_config.dart';
 
 class Profile extends StatefulWidget {
   final String userId;
+
   Profile({Key key, this.userId}) : super(key: key);
+
   @override
   _ProfileState createState() => _ProfileState();
 }
@@ -39,41 +43,13 @@ class _ProfileState extends State<Profile> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    var userId;
-    setState(() {
-      userId = storage.read(key: "userId");
-    });
+    // var userId;
+    // setState(() {
+    //   userId = storage.read(key: "userId");
+    // });
+    String uri = FlutterConfig.get('API_URL');
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        title: Text(
-          "Epic Lanka",
-          style: TextStyle(
-              fontSize: 25.0,
-              color: Colors.blueAccent[100],
-              fontFamily: 'PlayfairDisplay'),
-        ),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.of(context).pushReplacementNamed('/dashboard');
-          },
-        ),
-        actions: <Widget>[
-          IconButton(
-              icon: Icon(Icons.home),
-              color: Colors.white,
-              onPressed: () {
-                Navigator.of(context).pushReplacementNamed('/dashboard');
-              }),
-          IconButton(
-              icon: Icon(Icons.notifications),
-              color: Colors.white,
-              onPressed: () {
-                Navigator.of(context).pushReplacementNamed('/notifications');
-              }),
-        ],
-      ),
+      appBar: appBar(context),
       body: Stack(
         children: [
           Container(
@@ -93,8 +69,7 @@ class _ProfileState extends State<Profile> {
               child: ClipOval(
                 child: FadeInImage.assetNetwork(
                   fit: BoxFit.cover,
-                  image:
-                      'http://192.168.8.144:8080/api/images/getImage/$userId.JPG',
+                  image: uri + '/api/images/getImage/${widget.userId}.jpg',
                   placeholder: "assets/profile.png",
                 ),
               ),

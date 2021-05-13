@@ -10,8 +10,12 @@ String api = FlutterConfig.get('API_URL');
 class ReceiptService {
   // ignore: missing_return
   Future<Receipt> getDate(String amcNo) async {
-    http.Response response = await http.get(api + '/receipt/getDate/$amcNo',
-        headers: {HttpHeaders.contentTypeHeader: contentTypeHeader});
+    http.Response response = await http.get(
+      api + '/receipt/getDate/$amcNo',
+      headers: {
+        HttpHeaders.authorizationHeader: 'jwt',
+      },
+    );
     if (response.statusCode == 200) {
       var responseBody = json.decode(response.body);
       Receipt receipt = Receipt.fromJson(responseBody);

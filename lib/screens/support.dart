@@ -1,3 +1,4 @@
+import 'package:amc_new/widgets/appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -36,36 +37,7 @@ class _SupportState extends State<Support> {
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        title: Text(
-          "Epic Lanka",
-          style: TextStyle(
-              fontSize: 25.0,
-              color: Colors.blueAccent[100],
-              fontFamily: 'PlayfairDisplay'),
-        ),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.of(context).pushReplacementNamed('/dashboard');
-          },
-        ),
-        actions: <Widget>[
-          IconButton(
-              icon: Icon(Icons.home),
-              color: Colors.white,
-              onPressed: () {
-                Navigator.of(context).pushReplacementNamed('/dashboard');
-              }),
-          IconButton(
-              icon: Icon(Icons.notifications),
-              color: Colors.white,
-              onPressed: () {
-                Navigator.of(context).pushReplacementNamed('/notifications');
-              }),
-        ],
-      ),
+      appBar: appBar(context),
       body: Stack(
         children: <Widget>[
           Container(

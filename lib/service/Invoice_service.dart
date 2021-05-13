@@ -7,7 +7,7 @@ String api = FlutterConfig.get('API_URL');
 
 class InvoiceService {
   // ignore: missing_return
-  Future<ClientInvoice> getclientInvoice(String amcNo) async {
+  Future<List<ClientInvoice>> getclientInvoice(String amcNo) async {
     try {
       var response = await http.get(
         api + '/report/getinvoicereport/$amcNo',
@@ -25,7 +25,7 @@ class InvoiceService {
                 json.decode(str).map((x) => ClientInvoice.fromJson(x)));
         List<ClientInvoice> clientInvoicelist =
             clientInvoiceFromJson(response.body);
-        return clientInvoicelist[0];
+        return clientInvoicelist;
       } else {
         print("Not Found");
       }

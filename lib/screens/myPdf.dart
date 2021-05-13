@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:amc_new/widgets/appbar.dart';
 import 'package:dio/dio.dart';
 import 'package:ext_storage/ext_storage.dart';
 import 'package:flutter/material.dart';
@@ -17,36 +18,7 @@ class _MyPdfState extends State<MyPdf> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        title: Text(
-          "Epic Lanka",
-          style: TextStyle(
-              fontSize: 25.0,
-              color: Colors.blueAccent[100],
-              fontFamily: 'PlayfairDisplay'),
-        ),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.of(context).pushReplacementNamed('/bills');
-          },
-        ),
-        actions: <Widget>[
-          IconButton(
-              icon: Icon(Icons.home),
-              color: Colors.white,
-              onPressed: () {
-                Navigator.of(context).pushReplacementNamed('/dashboard');
-              }),
-          IconButton(
-              icon: Icon(Icons.notifications),
-              color: Colors.white,
-              onPressed: () {
-                Navigator.of(context).pushReplacementNamed('/notifications');
-              }),
-        ],
-      ),
+      appBar: appBar(context),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,

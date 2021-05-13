@@ -12,8 +12,12 @@ class UserService {
   Future<User> getProfile(String id) async {
     try {
       // print(id);
-      var response = await http.get(api + '/allusers/$id',
-          headers: {HttpHeaders.contentTypeHeader: contentTypeHeader});
+      var response = await http.get(
+        api + '/allusers/$id',
+        headers: {
+          HttpHeaders.authorizationHeader: 'jwt',
+        },
+      );
       if (response.statusCode == 200) {
         // print(response.body);
         var responseBody = json.decode(response.body);

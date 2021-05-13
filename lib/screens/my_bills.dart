@@ -1,4 +1,11 @@
+import 'package:amc_new/model/amc_master.dart';
+import 'package:amc_new/model/date.dart';
+import 'package:amc_new/service/amc_master_service.dart';
+import 'package:amc_new/service/date_service.dart';
+import 'package:amc_new/service/services.dart';
+import 'package:amc_new/widgets/appbar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 class MyBills extends StatefulWidget {
@@ -7,49 +14,57 @@ class MyBills extends StatefulWidget {
 }
 
 class _MyBillsState extends State<MyBills> {
-  var selectedType;
-  List<String> _amcNo = <String>[
-    "AMC No 1",
-    "AMC No 2",
-    "AMC No 3",
-    "AMC No 4",
-    "AMC No 5"
-  ];
+  bool circular = false;
+  bool isLoading = true;
+  AmcMasterService amcMasterService = new AmcMasterService(dioInstance);
+  DateService dateService = DateService(dioInstance);
+  final storage = new FlutterSecureStorage();
+  String selectedType;
+  List<String> _amcNo = <String>[];
+
+  void initState() {
+    super.initState();
+    setState(() {
+      circular = true;
+    });
+    this.getAmcNo();
+    this.getDate();
+  }
+
+  AmcMaster amcMaster;
+  var userId;
+  getAmcNo() async {
+    userId = await storage.read(key: "userId");
+    print(userId.toString() + "aaaaaaaaaaaaaaaaaaaaaaa");
+    var amcMaster = await amcMasterService.getAllAmcNo(userId);
+    print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
+    print(amcMaster);
+    if (amcMaster != null) {
+      setState(() {
+        _amcNo = amcMaster;
+        isLoading = false;
+      });
+    }
+  }
+
+  List<Date> date;
+  getDate() async {
+    var date = await dateService.getDate("2001");
+    print("aaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+    print(date);
+    print("aaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+    if (date != null) {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.black,
-        title: Text(
-          "Epic Lanka",
-          style: TextStyle(
-              fontSize: 25.0,
-              color: Colors.blueAccent[100],
-              fontFamily: 'PlayfairDisplay'),
-        ),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.of(context).pushReplacementNamed('/dashboard');
-          },
-        ),
-        actions: <Widget>[
-          IconButton(
-              icon: Icon(Icons.home),
-              color: Colors.white,
-              onPressed: () {
-                Navigator.of(context).pushReplacementNamed('/dashboard');
-              }),
-          IconButton(
-              icon: Icon(Icons.notifications),
-              color: Colors.white,
-              onPressed: () {
-                Navigator.of(context).pushReplacementNamed('/notifications');
-              }),
-        ],
-      ),
+      appBar: appBar(context),
       body: Container(
         margin: EdgeInsets.all(15.0),
         child: ListView(
@@ -73,7 +88,10 @@ class _MyBillsState extends State<MyBills> {
                 onChanged: (selectedAMCno) {
                   setState(() {
                     selectedType = selectedAMCno;
+                    return selectedType;
                   });
+                  print("selectedType");
+                  print(selectedType);
                 },
                 value: selectedType,
                 isExpanded: false,
@@ -111,7 +129,7 @@ class _MyBillsState extends State<MyBills> {
                     ),
                     title: Text('My Invoice '),
                     subtitle: Text(
-                      '2020/05/12',
+                      date == null ? "(Empty)" : date[0].date.toString(),
                       style: TextStyle(
                         color: Colors.red,
                       ),
@@ -148,7 +166,7 @@ class _MyBillsState extends State<MyBills> {
                     ),
                     title: Text('My Invoice '),
                     subtitle: Text(
-                      '2020/05/12',
+                      date == null ? "(Empty)" : date[0].date.toString(),
                       style: TextStyle(
                         color: Colors.red,
                       ),
@@ -185,7 +203,7 @@ class _MyBillsState extends State<MyBills> {
                     ),
                     title: Text('My Invoice '),
                     subtitle: Text(
-                      '2020/05/12',
+                      date == null ? "(Empty)" : date[0].date.toString(),
                       style: TextStyle(
                         color: Colors.red,
                       ),
@@ -222,7 +240,7 @@ class _MyBillsState extends State<MyBills> {
                     ),
                     title: Text('My Invoice '),
                     subtitle: Text(
-                      '2020/05/12',
+                      date == null ? "(Empty)" : date[0].date.toString(),
                       style: TextStyle(
                         color: Colors.red,
                       ),

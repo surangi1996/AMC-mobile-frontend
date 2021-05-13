@@ -1,4 +1,5 @@
 import 'package:amc_new/service/login_service.dart';
+import 'package:amc_new/widgets/loginUserdler.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
@@ -143,19 +144,19 @@ class _SigninState extends State<Signin> {
     );
   }
 
-  loginUserHandler() async {
-    var loginUser = await loginService.loginUser(userId, password);
-    // var jwt = await attemptLogIn(username, password);
-    if (loginUser != null) {
-      storage.write(key: "jwt", value: loginUser.jwt);
-      storage.write(key: "userId", value: loginUser.userId);
-      Navigator.of(context).pushReplacementNamed('/dashboard');
-    } else {
-      // displayDialog(context, "An Error Occurred",
-      //     "No account was found matching that username and password");
-      print("Error Occured");
-    }
-  }
+  // loginUserHandler() async {
+  //   var loginUser = await loginService.loginUser(userId, password);
+  //   // var jwt = await attemptLogIn(username, password);
+  //   if (loginUser != null) {
+  //     storage.write(key: "jwt", value: loginUser.jwt);
+  //     storage.write(key: "userId", value: loginUser.userId);
+  //     Navigator.of(context).pushReplacementNamed('/dashboard');
+  //   } else {
+  //     // displayDialog(context, "An Error Occurred",
+  //     //     "No account was found matching that username and password");
+  //     print("Error Occured");
+  //   }
+  // }
 
   isUserLoggedIn() async {
     String jwt = await storage.read(key: "jwt");
@@ -176,7 +177,7 @@ class _SigninState extends State<Signin> {
             elevation: 10.0,
             onPressed: () {
               if (_formKey.currentState.validate()) {
-                loginUserHandler();
+                loginUserHandler(context);
               }
             },
             padding: EdgeInsets.fromLTRB(size.width * 0.25, size.width * 0.03,
