@@ -54,6 +54,7 @@ dependencies:
   downloads_path_provider_28:
   open_file:
   path_provider:
+  expansion_tile_card: ^1.1.0
   
  
 
@@ -102,6 +103,7 @@ flutter:
     - assets/report.svg
     - assets/invoice.svg
     - assets/right.svg
+    - assets/notification.svg
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware.
