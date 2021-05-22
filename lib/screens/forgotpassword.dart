@@ -1,5 +1,6 @@
 import 'package:amc_new/model/user.dart';
 import 'package:amc_new/service/verify_email_service.dart';
+import 'package:amc_new/widgets/loginUserdler.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
@@ -77,6 +78,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                   ),
                   color: Colors.blue[300],
                   onPressed: () async {
+                    var jwt = await storage.read(key: "jwt");
                     if (_formKey.currentState.validate() &&
                         RegExp(r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$')
                             .hasMatch(_verifyEmail.text)) {
@@ -85,8 +87,8 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                       print("email verification");
                       print(_verifyEmail.text);
                       print(_verifyEmail.value.toString());
-                      bool x = await verifyEmailService
-                          .processForgotPassword(_verifyEmail.text);
+                      bool x = await verifyEmailService.processForgotPassword(
+                          jwt, _verifyEmail.text);
                       print("test email verification");
                       print(x);
                       Fluttertoast.showToast(

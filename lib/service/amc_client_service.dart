@@ -8,12 +8,14 @@ String uri = FlutterConfig.get('API_URL');
 
 class ClientAmcService {
   // ignore: missing_return
-  Future<ClientAmc> getclientAmc(String amcNo) async {
+  Future<ClientAmc> getclientAmc(String jwt, String amcNo) async {
     try {
       var response = await http.get(
-        uri + '/report/getamcreport/$amcNo',
+        uri + '/report/client/getamcreport/$amcNo',
         headers: {
-          HttpHeaders.authorizationHeader: 'jwt',
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $jwt',
         },
       );
       print("------------------------------------------------");
@@ -33,3 +35,17 @@ class ClientAmcService {
     }
   }
 }
+
+// import 'package:amc_new/model/client_amc.dart';
+// import 'package:dio/dio.dart';
+// import 'package:retrofit/http.dart';
+
+// part 'amc_client_service.g.dart';
+
+// @RestApi()
+// abstract class ClientAmcService {
+//   factory ClientAmcService(Dio dio, {String baseUrl}) = _ClientAmcService;
+
+//   @GET('/report/client/getamcreport/{amcNo}')
+//   Future<ClientAmc> getclientAmc(@Path('amcNo') String amcNo);
+// }

@@ -6,21 +6,26 @@ String api = FlutterConfig.get('API_URL');
 
 class UpdatePasswordService {
   // ignore: missing_return
-  Future<bool> updatePassword(String password, String userId) async {
+  Future<bool> updatePassword(String jwt, String password, String userId,
+      String exitingPassword) async {
     // http.Response
     try {
+      print(exitingPassword + "" + "xxxxxx");
       var response = await http.put(
-        api + '/User/updatePassword/$userId',
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
+        api + '/User/updatePassword/$exitingPassword/$userId',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $jwt',
         },
         body: jsonEncode(<String, String>{
           'password': password,
           'userId': userId,
         }),
       );
-      print(response.body);
+      print(response.body.hashCode);
       print(response.statusCode);
+
       if (response.body == "Modified Successfully") {
         return true;
       } else {

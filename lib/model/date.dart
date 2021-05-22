@@ -1,11 +1,11 @@
-class Date {
-  Date({
+class Dates {
+  Dates({
     this.date,
   });
 
   String date;
 
-  factory Date.fromJson(Map<String, dynamic> json) => Date(
+  factory Dates.fromJson(Map<String, dynamic> json) => Dates(
         date: json["date"],
       );
 }

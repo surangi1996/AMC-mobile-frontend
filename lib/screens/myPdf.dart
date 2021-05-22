@@ -1,9 +1,11 @@
-import 'dart:io';
+import 'dart:isolate';
+import 'dart:ui';
 
 import 'package:amc_new/widgets/appbar.dart';
-import 'package:dio/dio.dart';
-import 'package:ext_storage/ext_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class MyPdf extends StatefulWidget {
@@ -12,9 +14,39 @@ class MyPdf extends StatefulWidget {
 }
 
 class _MyPdfState extends State<MyPdf> {
-  final imgUrl =
-      "https://www.vu.edu.au/sites/default/files/campuses-services/pdfs/asd-essay-structure.pdf";
-  var dio = Dio();
+  int progress = 0;
+
+  final myStorage = new FlutterSecureStorage();
+  ReceivePort _receivePort = ReceivePort();
+
+  static downloadingCallback(id, status, progress) {
+    ///Looking up for a send port
+    SendPort sendPort = IsolateNameServer.lookupPortByName("downloading");
+
+    ///ssending the data
+    sendPort.send([id, status, progress]);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+
+    ///register a send port for the other isolates
+    IsolateNameServer.registerPortWithName(
+        _receivePort.sendPort, "downloading");
+
+    ///Listening for the data is comming other isolataes
+    _receivePort.listen((message) {
+      setState(() {
+        progress = message[2];
+      });
+
+      print(progress);
+    });
+
+    FlutterDownloader.registerCallback(downloadingCallback);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -23,69 +55,40 @@ class _MyPdfState extends State<MyPdf> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            RaisedButton.icon(
-              onPressed: () async {
-                String path =
-                    await ExtStorage.getExternalStoragePublicDirectory(
-                        ExtStorage.DIRECTORY_DOWNLOADS);
-                String fullPath = "$path/newtask1.pdf";
-                download2(dio, imgUrl, fullPath);
-              },
-              icon: Icon(
-                Icons.file_download,
-                color: Colors.white,
-              ),
-              color: Colors.green,
-              textColor: Colors.white,
-              label: Text('Download'),
+            Text(
+              "progress",
+              style: TextStyle(fontSize: 40),
             ),
+            SizedBox(
+              height: 60,
+            ),
+            FlatButton(
+              child: Text("Start Downloading"),
+              color: Colors.redAccent,
+              textColor: Colors.white,
+              onPressed: () async {
+                final status = await Permission.storage.request();
+
+                if (status.isGranted) {
+                  print("Access Granted");
+                  final externalDir = await getExternalStorageDirectory();
+
+                  await FlutterDownloader.enqueue(
+                    url:
+                        "https://spring-amc.herokuapp.com/amcSerial/download/202119-amc.png",
+                    savedDir: externalDir.path,
+                    fileName: "202119-amc",
+                    showNotification: true,
+                    openFileFromNotification: true,
+                  );
+                } else {
+                  print("Permission deined");
+                }
+              },
+            )
           ],
         ),
       ),
     );
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    getPermission();
-  }
-
-  void getPermission() async {
-    print("getPermisiion");
-    await PermissionHandler().requestPermissions([PermissionGroup.storage]);
-  }
-
-  Future download2(Dio dio, String url, String savePath) async {
-    try {
-      //get pdf from link
-      Response response = await dio.get(
-        url,
-        // onReceiveProgress: showDownloadProgress,
-        //Received data with List<int>
-        options: Options(
-            responseType: ResponseType.bytes,
-            followRedirects: false,
-            validateStatus: (status) {
-              return status < 500;
-            }),
-      );
-
-      //write in download folder
-      File file = File(savePath);
-      var raf = file.openSync(mode: FileMode.write);
-      raf.writeFromSync(response.data);
-      await raf.close();
-    } catch (e) {
-      print("Error Is");
-      print(e);
-    }
-
-// //progress bar
-//     void showDownloadProgress(received, total) {
-//       if (total != -1) {
-//         print((received / total * 100).toStringAsFixed(0) + "%");
-//       }
-//     }
   }
 }

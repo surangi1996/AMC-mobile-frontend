@@ -1,7 +1,9 @@
+import 'dart:async';
+import 'package:amc_new/model/login_user.dart';
 import 'package:amc_new/model/proforma_invoice.dart';
 import 'package:amc_new/model/user.dart';
+import 'package:amc_new/service/login_service.dart';
 import 'package:amc_new/service/profrma_invoice_service.dart';
-import 'package:amc_new/widgets/appbar.dart';
 import 'package:amc_new/widgets/loading_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:amc_new/service/username_service.dart';
@@ -15,6 +17,10 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
+  String userId;
+  String jwt;
+  // DateTime expirationTime;
+  // Timer _authTimer;
   UserNameService unameService = new UserNameService();
   ProformaInvoiceService proformaInvoiceService = new ProformaInvoiceService();
 
@@ -25,30 +31,41 @@ class _DashboardState extends State<Dashboard> {
     setState(() {
       circular = true;
     });
+    // logOutHandler();
     fetchUserName();
     fetchAmount();
   }
 
   User username;
-  var userId;
   bool isLoading = true;
   fetchUserName() async {
+    jwt = await storage.read(key: "jwt");
+    print(jwt);
     userId = await storage.read(key: "userId");
-    username = await unameService.getUsername(userId);
+    username = await unameService.getUsername(jwt, userId);
     if (username != null) {
-      setState(() {
-        isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
   }
 
   ProformaInvoice proformainvoice;
   fetchAmount() async {
-    proformainvoice = await proformaInvoiceService.totalPaybleAmount("userId");
+    jwt = await storage.read(key: "jwt");
+    userId = await storage.read(key: "userId");
+    proformainvoice =
+        await proformaInvoiceService.totalPaybleAmount(jwt, userId);
+    print("xxxxxxxxxxxx");
+    print(proformainvoice);
     if (proformainvoice != null) {
-      setState(() {
-        isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
   }
 
@@ -57,7 +74,24 @@ class _DashboardState extends State<Dashboard> {
   logOutHandler() async {
     await storage.delete(key: "jwt");
     Navigator.of(context).pushReplacementNamed('/signin');
+    // if (_authTimer != null) {
+    //   _authTimer.cancel();
+    //   _authTimer = null;
+    // }
   }
+
+  autoLogoutHandler() async {
+    // if (_authTimer != null) {
+    //   _authTimer.cancel();
+    // }
+    Timer(Duration(seconds: 5), logOutHandler);
+  }
+
+//   var tokenTime;    //tokenTime should be initialized when user signin.
+
+// static void checkValidity(){
+//     Future.delay(duration: Duration(milliseconds: 5), (){ logout();});
+// }
 
   @override
   Widget build(BuildContext context) {
@@ -175,7 +209,7 @@ class _DashboardState extends State<Dashboard> {
                 ],
               ),
               onTap: () {
-                Navigator.of(context).pushReplacementNamed('/downloads');
+                Navigator.of(context).pushReplacementNamed('/mypdf');
               },
             ),
             ListTile(
@@ -388,7 +422,8 @@ class _DashboardState extends State<Dashboard> {
                         splashColor: Colors.blue,
                         elevation: 5.0,
                         onPressed: () {
-                          Navigator.of(context).pushReplacementNamed('/bills');
+                          Navigator.of(context)
+                              .pushReplacementNamed('/invoice');
                         },
                         padding: EdgeInsets.fromLTRB(
                             size.width * 0.05,

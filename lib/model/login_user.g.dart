@@ -12,6 +12,9 @@ LoginUser _$LoginUserFromJson(Map<String, dynamic> json) {
     json['password'] as String,
     json['role'] as String,
     json['jwt'] as String,
+    json['expirationTime'] == null
+        ? null
+        : DateTime.parse(json['expirationTime'] as String),
   );
 }
 
@@ -20,4 +23,5 @@ Map<String, dynamic> _$LoginUserToJson(LoginUser instance) => <String, dynamic>{
       'password': instance.password,
       'role': instance.role,
       'jwt': instance.jwt,
+      'expirationTime': instance.expirationTime?.toIso8601String(),
     };

@@ -7,6 +7,6 @@ part 'amc_master_service.g.dart';
 abstract class AmcMasterService {
   factory AmcMasterService(Dio dio, {String baseUrl}) = _AmcMasterService;
 
-  @GET('/amcMaster/allamcno/{userId}')
+  @GET('/amcMaster/client/allamcno/{userId}')
   Future<List<String>> getAllAmcNo(@Path('userId') String userId);
 }

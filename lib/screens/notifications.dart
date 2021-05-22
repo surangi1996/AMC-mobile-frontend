@@ -24,22 +24,28 @@ class _NotificationsState extends State<Notifications> {
 
   void initState() {
     super.initState();
-    setState(() {
-      circular = true;
-      fetchNotification();
-    });
+    if (mounted) {
+      setState(() {
+        circular = true;
+        fetchNotification();
+      });
+    }
   }
 
   List<Notifi> notification;
   var userId;
+  // var jwt;
   bool isLoading = true;
   fetchNotification() async {
+    // jwt = await storage.read(key: "jwt");
     userId = await storage.read(key: "userId");
     notification = await notificationService.getNotification(userId);
     if (notification != null) {
-      setState(() {
-        isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
   }
 

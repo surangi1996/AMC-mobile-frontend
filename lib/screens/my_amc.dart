@@ -25,9 +25,11 @@ class _MyAmcState extends State<MyAmc> {
 
   void initState() {
     super.initState();
-    setState(() {
-      circular = true;
-    });
+    if (mounted) {
+      setState(() {
+        circular = true;
+      });
+    }
     this.fetchUserName();
     getAmcDetails();
   }
@@ -38,18 +40,22 @@ class _MyAmcState extends State<MyAmc> {
   }
 
   AmcMaster amcMaster;
+  var jwt;
   getAmcNo() async {
     userId = await storage.read(key: "userId");
+    jwt = await storage.read(key: "jwt");
     print(userId.toString() + "aaaaaaaaaaaaaaaaaaaaaaa");
     var amcMaster = await amcMasterService.getAllAmcNo(userId);
     print("xxxxxxxxxxxxxxxxxxxxxxxxxxxxx");
     print(amcMaster);
     if (amcMaster != null) {
-      setState(() {
-        _amcNo = amcMaster;
-        selectedType = _amcNo[0];
-        isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _amcNo = amcMaster;
+          selectedType = _amcNo[0];
+          isLoading = false;
+        });
+      }
     }
   }
 
@@ -57,11 +63,14 @@ class _MyAmcState extends State<MyAmc> {
 
   ClientAmc amcClient;
   fetchClientAmc(String type) async {
-    amcClient = await clientAmcService.getclientAmc(type);
+    jwt = await storage.read(key: "jwt");
+    amcClient = await clientAmcService.getclientAmc(jwt, type);
     if (amcClient != null) {
-      setState(() {
-        isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
   }
 
@@ -70,12 +79,15 @@ class _MyAmcState extends State<MyAmc> {
   User username;
   var userId;
   fetchUserName() async {
+    jwt = await storage.read(key: "jwt");
     userId = await storage.read(key: "userId");
-    username = await unameService.getUsername(userId);
+    username = await unameService.getUsername(jwt, userId);
     if (username != null) {
-      setState(() {
-        isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
   }
 

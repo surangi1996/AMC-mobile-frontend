@@ -6,13 +6,18 @@ String api = FlutterConfig.get('API_URL');
 
 class UpdateMailContactNoService {
   // ignore: missing_return
-  Future<bool> updateUser(String email, String contactNo, String userId) async {
-    // http.Response
+  Future<bool> updateUser(
+      String jwt, String email, String contactNo, String userId) async {
     try {
+      print("=======");
+      print(jwt);
+      print("////////");
       var response = await http.put(
         api + '/User/update/$userId',
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $jwt',
         },
         body: jsonEncode(<String, String>{
           'email': email,
@@ -20,11 +25,15 @@ class UpdateMailContactNoService {
           'userId': userId,
         }),
       );
-      print(response.body);
+
+      // print(response.body);
+      print("=======");
       print(response.statusCode);
       if (response.body == "Modified Successfully") {
+        print("response body");
         return true;
       } else {
+        print("can not modify");
         return false;
       }
     } catch (e) {

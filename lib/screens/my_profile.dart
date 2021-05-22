@@ -1,5 +1,6 @@
 import 'package:amc_new/model/user.dart';
 import 'package:amc_new/service/profile_service.dart';
+import 'package:amc_new/service/services.dart';
 import 'package:amc_new/widgets/appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -15,26 +16,32 @@ class Profile extends StatefulWidget {
 }
 
 class _ProfileState extends State<Profile> {
-  ProfileService profileService = ProfileService();
+  ProfileService profileService = ProfileService(dioInstance);
 
   final storage = new FlutterSecureStorage();
 
   void initState() {
     super.initState();
-    setState(() {
-      circular = true;
-    });
+    if (mounted) {
+      setState(() {
+        circular = true;
+      });
+    }
     fetchUsers();
   }
 
   User userprofile;
   bool isLoading = true;
+  var jwt;
   fetchUsers() async {
+    jwt = await storage.read(key: "jwt");
     userprofile = await profileService.getUserById(widget.userId);
     if (userprofile != null) {
-      setState(() {
-        isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
   }
 
@@ -43,10 +50,6 @@ class _ProfileState extends State<Profile> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-    // var userId;
-    // setState(() {
-    //   userId = storage.read(key: "userId");
-    // });
     String uri = FlutterConfig.get('API_URL');
     return Scaffold(
       appBar: appBar(context),
@@ -61,8 +64,8 @@ class _ProfileState extends State<Profile> {
             ),
           ),
           Container(
-            margin: EdgeInsets.only(top: 20.0),
-            height: size.height * 0.35,
+            margin: EdgeInsets.only(top: 100.0),
+            height: size.height * 0.25,
             alignment: Alignment.topCenter,
             child: AspectRatio(
               aspectRatio: 1 / 1,

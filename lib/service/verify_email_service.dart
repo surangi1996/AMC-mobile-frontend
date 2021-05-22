@@ -8,15 +8,15 @@ String contentTypeHeader = 'application/json';
 
 class VerifyEmailService {
   // ignore: missing_return
-  Future<bool> processForgotPassword(String email) async {
+  Future<bool> processForgotPassword(String jwt, String email) async {
     try {
       var response = await http.post(
         api + '/User/forgot_password',
-        // headers: {HttpHeaders.contentTypeHeader: contentTypeHeader},
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json',
+          'Authorization': 'Bearer $jwt',
         },
-
         body: jsonEncode(<String, String>{
           'email': email,
         }),
@@ -28,15 +28,6 @@ class VerifyEmailService {
       } else {
         return false;
       }
-      // if (response.statusCode == 200) {
-      //   var responseBody = json.decode(response.body);
-      //   print("------------------");
-      //   print(responseBody);
-      //   // return user;
-      //   // Navigator.of(context).pushReplacementNamed('/signin');
-      // } else {
-      //   print(response.statusCode);
-      // }
     } catch (e) {
       print(e.toString());
       return false;

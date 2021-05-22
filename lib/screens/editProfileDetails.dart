@@ -1,8 +1,8 @@
 import 'dart:io';
-
 import 'package:amc_new/model/user.dart';
 import 'package:amc_new/service/image_upload_service.dart';
 import 'package:amc_new/service/profile_service.dart';
+import 'package:amc_new/service/services.dart';
 import 'package:amc_new/service/update_mailandcontactno.dart';
 import 'package:amc_new/service/update_password_service.dart';
 import 'package:amc_new/widgets/Alert.dart';
@@ -10,7 +10,6 @@ import 'package:amc_new/widgets/appbar.dart';
 import 'package:amc_new/widgets/errorAlert.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:image_picker/image_picker.dart';
 
 class EditProfileDetails extends StatefulWidget {
@@ -26,11 +25,13 @@ class _EditProfileDetailsState extends State<EditProfileDetails> {
   final _globalkeyC = GlobalKey<FormState>();
   TextEditingController _email = TextEditingController();
   TextEditingController _password = TextEditingController();
+  TextEditingController _exitingPassword = TextEditingController();
   TextEditingController _confirmpassword = TextEditingController();
   TextEditingController _contactno = TextEditingController();
   final ImagePicker _picker = ImagePicker();
   bool isHiddenPassword = true;
   bool isHiddenConfirmPassword = true;
+  bool isHiddenExtingPassword = true;
 
   UpdatePasswordService updatePasswordService = new UpdatePasswordService();
   UpdateMailContactNoService updateMailContactNoService =
@@ -38,26 +39,32 @@ class _EditProfileDetailsState extends State<EditProfileDetails> {
   ImageUpload imageUpload = new ImageUpload();
 
   final storage = new FlutterSecureStorage();
-  ProfileService profileService = ProfileService();
+  ProfileService profileService = ProfileService(dioInstance);
 
   void initState() {
     super.initState();
-    setState(() {
-      circular = true;
-    });
+    if (mounted) {
+      setState(() {
+        circular = true;
+      });
+    }
     fetchUsers();
   }
 
   User userprofile;
   bool isLoading = true;
   var userId;
+  var jwt;
   fetchUsers() async {
+    jwt = await storage.read(key: "jwt");
     userId = await storage.read(key: "userId");
     userprofile = await profileService.getUserById(userId);
     if (userprofile != null) {
-      setState(() {
-        isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          isLoading = false;
+        });
+      }
     }
   }
 
@@ -167,21 +174,26 @@ class _EditProfileDetailsState extends State<EditProfileDetails> {
                     if (_imageFile != null) {
                       print("validated");
                       _globalkeyA.currentState.save();
-                      bool image =
-                          await imageUpload.uploadUserImage(_imageFile, userId);
-                      print("test edit profile");
-                      print(image);
-                      showAlertDialog(context);
+                      bool image = await imageUpload.uploadUserImage(
+                          jwt, _imageFile, userId);
+
+                      if (image == true) {
+                        print("image uploaded");
+                        print(image);
+                        showAlertDialog(context);
+                      } else {
+                        print("Error Occured");
+                        errorAlertDialog(context);
+                      }
                     } else {
                       print("Error Occured");
                       errorAlertDialog(context);
                     }
                   },
                   child: Container(
-                    width: 100,
-                    height: 50,
+                    width: 120,
+                    height: 40,
                     decoration: BoxDecoration(
-                        // color: Colors.blueAccent,
                         borderRadius: BorderRadius.circular(10),
                         border:
                             Border.all(width: 2.0, color: Colors.blueAccent)),
@@ -201,8 +213,8 @@ class _EditProfileDetailsState extends State<EditProfileDetails> {
                   width: 15.0,
                 ),
                 Container(
-                  width: 100,
-                  height: 50,
+                  width: 120,
+                  height: 40,
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(width: 2.0, color: Colors.red)),
@@ -297,6 +309,7 @@ class _EditProfileDetailsState extends State<EditProfileDetails> {
                 InkWell(
                   onTap: () async {
                     var userId = await storage.read(key: "userId");
+                    var jwt = await storage.read(key: "jwt");
                     if (_globalkeyB.currentState.validate() &&
                         RegExp(r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$')
                             .hasMatch(_email.text) &&
@@ -306,37 +319,25 @@ class _EditProfileDetailsState extends State<EditProfileDetails> {
                       _globalkeyB.currentState.save();
                       print("edit profile");
                       print(_email.text);
-                      bool emailContactNo = await updateMailContactNoService
-                          .updateUser(_email.text, _contactno.text, userId);
-                      print("test edit profile");
-                      print(emailContactNo);
-                      // Fluttertoast.showToast(
-                      //     msg: "Modified Successfully!",
-                      //     toastLength: Toast.LENGTH_LONG,
-                      //     gravity: ToastGravity.SNACKBAR,
-                      //     timeInSecForIosWeb: 1,
-                      //     backgroundColor: Colors.tealAccent,
-                      //     textColor: Colors.white,
-                      //     fontSize: 16.0);
-                      showAlertDialog(context);
+                      bool emailContactNo =
+                          await updateMailContactNoService.updateUser(
+                              jwt, _email.text, _contactno.text, userId);
+                      if (emailContactNo == true) {
+                        showAlertDialog(context);
+                        print("test edit profile");
+                        print(emailContactNo);
+                      } else {
+                        errorAlertDialog(context);
+                      }
                     } else {
                       print("Error Occured");
-                      //   Fluttertoast.showToast(
-                      //       msg: "Please Try Again Later!",
-                      //       toastLength: Toast.LENGTH_LONG,
-                      //       gravity: ToastGravity.SNACKBAR,
-                      //       timeInSecForIosWeb: 1,
-                      //       backgroundColor: Colors.red,
-                      //       textColor: Colors.white,
-                      //       fontSize: 16.0);
                       errorAlertDialog(context);
                     }
                   },
                   child: Container(
-                    width: 100,
-                    height: 50,
+                    width: 120,
+                    height: 40,
                     decoration: BoxDecoration(
-                        // color: Colors.blueAccent,
                         borderRadius: BorderRadius.circular(10),
                         border:
                             Border.all(width: 2.0, color: Colors.blueAccent)),
@@ -356,8 +357,8 @@ class _EditProfileDetailsState extends State<EditProfileDetails> {
                   width: 15.0,
                 ),
                 Container(
-                  width: 100,
-                  height: 50,
+                  width: 120,
+                  height: 40,
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(10),
                       border: Border.all(width: 2.0, color: Colors.red)),
@@ -414,6 +415,10 @@ class _EditProfileDetailsState extends State<EditProfileDetails> {
       child: Container(
           child: Column(
         children: [
+          exitingPasswordField(),
+          SizedBox(
+            height: 20,
+          ),
           passwordField(),
           SizedBox(
             height: 20,
@@ -433,18 +438,24 @@ class _EditProfileDetailsState extends State<EditProfileDetails> {
                     print("validated");
                     _globalkeyC.currentState.save();
                     bool password = await updatePasswordService.updatePassword(
-                        _password.text, userId);
+                        jwt, _password.text, userId, _exitingPassword.text);
                     print("test edit profile");
-                    print(password);
-                    showAlertDialog(context);
+
+                    if (password == true) {
+                      print(password);
+                      showAlertDialog(context);
+                    } else {
+                      print("Error ");
+                      errorAlertDialog(context);
+                    }
                   } else {
                     print("Error Occured");
                     errorAlertDialog(context);
                   }
                 },
                 child: Container(
-                  width: 100,
-                  height: 50,
+                  width: 120,
+                  height: 40,
                   decoration: BoxDecoration(
                       // color: Colors.blueAccent,
                       borderRadius: BorderRadius.circular(10),
@@ -465,8 +476,8 @@ class _EditProfileDetailsState extends State<EditProfileDetails> {
                 width: 15.0,
               ),
               Container(
-                width: 100,
-                height: 50,
+                width: 120,
+                height: 40,
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
                     border: Border.all(width: 2.0, color: Colors.red)),
@@ -486,6 +497,43 @@ class _EditProfileDetailsState extends State<EditProfileDetails> {
         ],
       )),
     );
+  }
+
+  Widget exitingPasswordField() {
+    return TextFormField(
+      controller: _exitingPassword,
+      validator: (value) {
+        if (value.isEmpty) return "Can't be empty*";
+
+        return null;
+      },
+      obscureText: isHiddenExtingPassword,
+      decoration: InputDecoration(
+        border: OutlineInputBorder(
+            borderSide: BorderSide(
+          color: Colors.teal,
+        )),
+        focusedBorder: OutlineInputBorder(
+            borderSide: BorderSide(
+          color: Colors.orange,
+          width: 2,
+        )),
+        prefixIcon: Icon(
+          Icons.lock,
+          color: Colors.blueAccent,
+        ),
+        labelText: "Exiting Password",
+        hintText: "*******",
+        suffixIcon: InkWell(
+            onTap: _toggleExitingPasswordView, child: Icon(Icons.visibility)),
+      ),
+    );
+  }
+
+  void _toggleExitingPasswordView() {
+    setState(() {
+      isHiddenExtingPassword = !isHiddenExtingPassword;
+    });
   }
 
   Widget passwordField() {

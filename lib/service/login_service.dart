@@ -1,21 +1,22 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:amc_new/model/login_user.dart';
+import 'package:amc_new/widgets/loginUserdler.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_config/flutter_config.dart';
 
 String api = FlutterConfig.get('API_URL');
 
 class LoginService {
-// ignore: missing_return
   Future<LoginUser> loginUser(String userId, String password) async {
     var requestBody = jsonEncode({"userId": userId, "password": password});
 
     print(requestBody);
     try {
       http.Response response = await http.post(api + '/authenticate',
-          headers: <String, String>{
-            'Content-Type': 'application/json; charset=UTF-8',
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept': 'application/json',
           },
           body: requestBody);
       print(response.statusCode);
@@ -23,7 +24,7 @@ class LoginService {
       if (response.statusCode == 200) {
         var responseBody = json.decode(response.body);
         LoginUser user = LoginUser.fromJson(responseBody);
-
+        // user.expirationTime = DateTime.now().add(new Duration(seconds: 60));
         return user;
       }
     } catch (e) {
@@ -32,12 +33,3 @@ class LoginService {
     }
   }
 }
-
-// final response = await http.get(
-//   Uri.parse('https://jsonplaceholder.typicode.com/albums/1'),
-//   // Send authorization headers to the backend.
-//   headers: {
-//     HttpHeaders.authorizationHeader: 'Basic your_api_token_here',
-//   },
-// );
-// https://dev.to/carminezacc/user-authentication-jwt-authorization-with-flutter-and-node-176l
